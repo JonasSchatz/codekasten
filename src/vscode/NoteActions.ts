@@ -54,3 +54,15 @@ export function findUniqueFileName(filePath: string): string {
     }
     return filePath; 
 }
+
+export async function loadFileAsString(fileIdentifier: string | vscode.Uri): Promise<string> {
+    if(typeof fileIdentifier !== 'string') {
+        var filePath: vscode.Uri = fileIdentifier;
+    } else {
+        var filePath: vscode.Uri = vscode.Uri.parse("file:///" + fileIdentifier);;
+    }
+
+    var readData = await vscode.workspace.fs.readFile(filePath);
+    var readStr: string = Buffer.from(readData).toString('utf8');
+    return readStr;
+}

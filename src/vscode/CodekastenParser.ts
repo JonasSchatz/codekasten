@@ -3,6 +3,7 @@ import { Uri, workspace } from "vscode";
 import { Note } from "../core/Note";
 import { MarkdownLink } from "../core/Link";
 import * as path from 'path';
+import { loadFileAsString } from "./NoteActions";
 
 
 export class CodekastenParser implements Parser {
@@ -11,8 +12,7 @@ export class CodekastenParser implements Parser {
 
         note.path = uri.fsPath;
 
-        var readData = await workspace.fs.readFile(uri);
-        var readStr: string = Buffer.from(readData).toString('utf8');
+        var readStr: string = await loadFileAsString(uri);
         
         var links: Array<MarkdownLink> = [];
         const markdownLinkRe = /(?<!!)\[(?<text>[^\]]*)\]\((?<target>[^\)]*)\)/g;
@@ -34,5 +34,30 @@ export class CodekastenParser implements Parser {
         }
 
         return note;
+    }
+
+    parseLinks(text: string, sourcePath: string): {links: MarkdownLink[], backlinks: MarkdownLink[]} {
+        const markdownLinkRe = /(?<!!)\[(?<text>[^\]\n]*)\]\((?!http|www)(?<target>[^\)\n]*)\)/gm;
+        const backlinkAreaRe = /(?<=# Backlinks\s)((?:.|\s)+?)(---|$|#)/g;
+        const backlinkArea = backlinkAreaRe.exec(text);
+        const backlinkAreaStartIndex = backlinkArea.index;
+        const backlinkAreaEndIndex = backlinkAreaStartIndex + backlinkArea[0].length;
+        const linkMatches = text.matchAll(markdownLinkRe);
+
+        var links: Array<MarkdownLink> = [];
+        var backlinks: Array<MarkdownLink> = [];
+
+        for (const linkMatch of linkMatches) {
+            var link: MarkdownLink = new MarkdownLink(sourcePath, path.join(path.dirname(sourcePath), linkMatch.groups.target));
+            link.description = linkMatch.groups.text;
+
+            if(linkMatch.index >= backlinkAreaStartIndex && linkMatch.index <= backlinkAreaEndIndex) {
+                backlinks.push(link);
+            } else {
+                links.push(link);
+            }
+        }
+
+        return {links: links, backlinks: backlinks};
     }
 }

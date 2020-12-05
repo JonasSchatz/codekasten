@@ -20,7 +20,6 @@ export class NoteGraph {
 
     async populateGraph(urisPromise: Thenable<Array<Uri>>, parser: Parser) {
         const uris = await urisPromise;
-        console.log(uris);
         
         for (const uri of uris) {
             var note: Note = await parser.parse(uri);
