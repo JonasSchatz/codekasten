@@ -25,7 +25,6 @@ suite('Extension Test Suite', () => {
         const actualFilePaths = filePaths.map(findUniqueFileName);
 
         // Assert
-        console.log('done');
         assert.deepStrictEqual(actualFilePaths, expectedFilePaths);
 	});
 });

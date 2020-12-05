@@ -1,11 +1,10 @@
 import { ExtensionContext, Uri, workspace } from "vscode";
 import { commands, window, TextEditor } from "vscode";
-import * as path from "path";
 import { Feature } from "./feature";
 import { NoteGraph } from "../core";
 import { letUserChooseTemplate } from "../vscode/Inputs";
-import { StringDecoder } from "string_decoder";
-import { createNote } from "../vscode/NoteActions";
+import { createNote, openNoteInWorkspace } from "../vscode/NoteActions";
+import { MarkdownLink } from "../core/Link";
 
 const feature: Feature = {
     activate: (context: ExtensionContext, graph: NoteGraph) => {
@@ -14,17 +13,20 @@ const feature: Feature = {
                 'codekasten.create-note', 
                 async () => {
 
-                    const rootDir: string = workspace.workspaceFolders[0].uri.fsPath; 
-                    const templatesDir: string = `${rootDir}/.codekasten/templates`;
-                    
                     const activeEditor: TextEditor | undefined = window.activeTextEditor;
                     const selection = activeEditor?.selection;
+                    const selectionText: string | undefined = window.activeTextEditor.document.getText(selection);
 
                     const templatePath: string = await letUserChooseTemplate();
                     
+                    if (selection !== undefined && !selection.isEmpty && selection.isSingleLine) {
+                        var titleSuggestion: string = selectionText;
+                    } else {
+                        var titleSuggestion: string = '';
+                    }
                     var title: string = await window.showInputBox({
                         prompt: `Enter the title...`, 
-                        value: window.activeTextEditor?.document?.getText(selection)
+                        value: titleSuggestion
                     });
 
                     const filename: string = await window.showInputBox({
@@ -33,18 +35,21 @@ const feature: Feature = {
                     });
 
                     if (selection !== undefined && !selection.isEmpty && !selection.isSingleLine) {
-                        var body: string = window.activeTextEditor.document.getText(selection);
+                        var body: string = selectionText;
                     } else {
                         var body: string = '';
                     }
                     
                     const content: string = await createNoteContentFromTemplate(templatePath, {'title': title, 'body': body});
                     
+                    const rootDir: string = workspace.workspaceFolders[0].uri.fsPath; 
                     var filePath: string = `${rootDir}/notes/${filename}.md`;
                     filePath = await createNote(filePath, content, false);
-
-                    //ToDo: Place Link back into the old note
-                    //ToDo: Open the newly created note
+                    
+                    const markdownLink: MarkdownLink = new MarkdownLink(activeEditor.document.uri.fsPath, filePath);
+                    markdownLink.description = title;
+                    activeEditor.edit(editBuilder => editBuilder.replace(selection, markdownLink.createStringRepresentation()));
+                    openNoteInWorkspace(filePath);
 
                 }
             )
