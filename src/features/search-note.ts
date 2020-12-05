@@ -3,7 +3,8 @@ import { Feature } from "./feature";
 import { NoteGraph } from "../core";
 import { Note } from '../core/Note';
 import { letUserSearchNoteByTitle, letUserChooseNoteAction } from '../vscode/Inputs';
-import * as editorActions from '../vscode/EditorActions';
+import * as noteActions from "../vscode/NoteActions";
+
 
 const feature: Feature = {
     activate: (context: vscode.ExtensionContext, graph: NoteGraph) => {
@@ -15,9 +16,9 @@ const feature: Feature = {
                     let decision: string = await letUserChooseNoteAction();
 
                     if (decision === 'Insert Link') {
-                        editorActions.insertMarkdownLinkInCurrentNote(note.path, note.title);
+                        noteActions.insertMarkdownLinkInCurrentNote(note.path, note.title);
                     } else if (decision === 'Open Note') {
-                        editorActions.openNoteInWorkspace(note.path);
+                        noteActions.openNoteInWorkspace(note.path);
                     } else {
                         vscode.window.showErrorMessage(`Unsupported action ${decision}`);
                     }

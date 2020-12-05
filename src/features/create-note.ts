@@ -5,9 +5,7 @@ import { Feature } from "./feature";
 import { NoteGraph } from "../core";
 import { letUserChooseTemplate } from "../vscode/Inputs";
 import { StringDecoder } from "string_decoder";
-
-const rootDir: string = workspace.workspaceFolders[0].uri.fsPath; 
-const templatesDir: string = `${rootDir}/.codekasten/templates`;
+import { createNote } from "../vscode/NoteActions";
 
 const feature: Feature = {
     activate: (context: ExtensionContext, graph: NoteGraph) => {
@@ -15,19 +13,19 @@ const feature: Feature = {
             commands.registerCommand(
                 'codekasten.create-note', 
                 async () => {
+
+                    const rootDir: string = workspace.workspaceFolders[0].uri.fsPath; 
+                    const templatesDir: string = `${rootDir}/.codekasten/templates`;
                     
                     const activeEditor: TextEditor | undefined = window.activeTextEditor;
                     const selection = activeEditor?.selection;
 
                     const templatePath: string = await letUserChooseTemplate();
-
-                    if (selection === undefined || selection.isEmpty || !selection.isSingleLine) {
-                        var title: string = await window.showInputBox({
-                            prompt: `Enter the title...`
-                        });
-                    } else {
-                        var title: string = window.activeTextEditor.document.getText(selection);
-                    }
+                    
+                    var title: string = await window.showInputBox({
+                        prompt: `Enter the title...`, 
+                        value: window.activeTextEditor?.document?.getText(selection)
+                    });
 
                     const filename: string = await window.showInputBox({
                         prompt: `Enter the filename for the new note`, 
@@ -41,9 +39,12 @@ const feature: Feature = {
                     }
                     
                     const content: string = await createNoteContentFromTemplate(templatePath, {'title': title, 'body': body});
-                    createNote(filename, content);
+                    
+                    var filePath: string = `${rootDir}/notes/${filename}.md`;
+                    filePath = await createNote(filePath, content, false);
 
                     //ToDo: Place Link back into the old note
+                    //ToDo: Open the newly created note
 
                 }
             )
@@ -62,11 +63,7 @@ async function createNoteContentFromTemplate(templatePath: string, placeholders:
     return readStr;
 }
 
-async function createNote(filename: string, content: string) {
-    const writeBytes = Buffer.from(content, 'utf8');
-    const uri = Uri.file(`${rootDir}/notes/${filename}.md`);
-    await workspace.fs.writeFile(uri, writeBytes);
-}
+
 
 function convertToKebabCase(str: string): string {
     return str.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/\s+/g, '-').toLowerCase();

@@ -23,20 +23,10 @@ export function letUserSearchNoteByTitle(graph: NoteGraph): Promise<Note> {
     return noteQuickPickPromise;
 }
 
-export function letUserChooseNoteAction(): Promise<string> {
-    const actionQuickPick = vscode.window.createQuickPick();
-    actionQuickPick.placeholder = "Choose action...";
-    actionQuickPick.onDidHide(() => actionQuickPick.dispose());
-    actionQuickPick.items = [{label: 'Insert Link'}, {label: 'Open Note'}]; // ToDo: Remove magic strings
-    var actionQuickPickPromise = new Promise<string>(resolve => {
-        actionQuickPick.onDidAccept( () => {
-            const selectedQuickPickItem: vscode.QuickPickItem = actionQuickPick.selectedItems[0];
-            actionQuickPick.hide();
-            resolve(selectedQuickPickItem.label);
-        });
-    });
-    actionQuickPick.show();
-    return actionQuickPickPromise;
+export async function letUserChooseNoteAction(): Promise<string> {
+    const actionQuickPickItems = [{label: 'Insert Link'}, {label: 'Open Note'}]; // ToDo: Remove magic strings
+    const selectedQuickPickItem = await vscode.window.showQuickPick(actionQuickPickItems, {placeHolder: "Choose action..."});
+    return selectedQuickPickItem.label;
 }
 
 export async function letUserChooseTemplate(): Promise<string> {
