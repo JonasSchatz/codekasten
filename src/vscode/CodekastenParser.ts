@@ -13,17 +13,11 @@ export class CodekastenParser implements Parser {
         note.path = uri.fsPath;
 
         var readStr: string = await loadFileAsString(uri);
-        
-        var links: Array<MarkdownLink> = [];
-        const markdownLinkRe = /(?<!!)\[(?<text>[^\]]*)\]\((?<target>[^\)]*)\)/g;
-        const linkMatches = readStr.matchAll(markdownLinkRe);
-        for (const linkMatch of linkMatches) {
-            var target: string = path.join(path.dirname(note.path), linkMatch.groups.target);
-            var link: MarkdownLink = new MarkdownLink(note.path, target);
-            link.description = linkMatch.groups.text;
-            links.push(link);
-        }
+
+        const {links, backlinks}: {links: MarkdownLink[], backlinks: MarkdownLink[]} = this.parseLinks(readStr, note.path);
         note.links = links;
+        note.backlinks = backlinks;
+        
         
         const titleRe = /^# (.*)/;
         const match = readStr.match(titleRe);
@@ -40,8 +34,14 @@ export class CodekastenParser implements Parser {
         const markdownLinkRe = /(?<!!)\[(?<text>[^\]\n]*)\]\((?!http|www)(?<target>[^\)\n]*)\)/gm;
         const backlinkAreaRe = /(?<=# Backlinks\s)((?:.|\s)+?)(---|$|#)/g;
         const backlinkArea = backlinkAreaRe.exec(text);
-        const backlinkAreaStartIndex = backlinkArea.index;
-        const backlinkAreaEndIndex = backlinkAreaStartIndex + backlinkArea[0].length;
+        if(backlinkArea) {
+            var backlinkAreaStartIndex = backlinkArea.index;
+            var backlinkAreaEndIndex = (backlinkAreaStartIndex + backlinkArea[0].length);
+        } else {
+            var backlinkAreaStartIndex = -1;
+            var backlinkAreaEndIndex = -1;
+        };
+        
         const linkMatches = text.matchAll(markdownLinkRe);
 
         var links: Array<MarkdownLink> = [];

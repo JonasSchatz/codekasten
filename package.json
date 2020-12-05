@@ -26,6 +26,9 @@
 			{
 				"command": "codekasten.search-note",
 				"title": "Codekasten: Search Note"
+			}, {
+				"command": "codekasten.update-graph", 
+				"title": "Codekasten: Update Graph"
 			}
 		]
 	},
