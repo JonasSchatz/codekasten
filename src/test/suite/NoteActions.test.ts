@@ -3,28 +3,43 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { findUniqueFileName } from '../../vscode/NoteActions';
 
-suite('Extension Test Suite', () => {
+suite('NoteActions', () => {
 
     const rootDir: string = vscode.workspace.workspaceFolders[0]?.uri.fsPath; 
-
-	test('findUniqueFileName', () => {
+    
+    test('findUniqueFileName: Keep already unique name', () => {
         // Prepare
-        const filePaths = [
-            path.join(rootDir, 'notes', 'test.md'), 
-            path.join(rootDir, 'notes', 'test_1.md'), 
-            path.join(rootDir, 'notes', 'definitely_a_unique_filename.md')
-        ];
-
-        const expectedFilePaths = [
-            path.join(rootDir, 'notes', 'test_2.md'), 
-            path.join(rootDir, 'notes', 'test_2.md'), 
-            path.join(rootDir, 'notes', 'definitely_a_unique_filename.md')
-        ];
+        const filePath = path.join(rootDir, 'notes', 'definitely_a_unique_filename.md');
+        const expectedFilePath = path.join(rootDir, 'notes', 'definitely_a_unique_filename.md');
 
         // Act
-        const actualFilePaths = filePaths.map(findUniqueFileName);
+        const actualFilePath = findUniqueFileName(filePath);
 
         // Assert
-        assert.deepStrictEqual(actualFilePaths, expectedFilePaths);
-	});
+        assert.strictEqual(actualFilePath, expectedFilePath);
+    });
+
+    test('findUniqueFileName: Increment Once', () => {
+        // Prepare
+        const filePath = path.join(rootDir, 'notes', 'test.md');
+        const expectedFilePath = path.join(rootDir, 'notes', 'test_2.md');
+
+        // Act
+        const actualFilePath = findUniqueFileName(filePath);
+
+        // Assert
+        assert.strictEqual(actualFilePath, expectedFilePath);
+    });
+
+    test('findUniqueFileName: Increment Twice', () => {
+        // Prepare
+        const filePath = path.join(rootDir, 'notes', 'test_1.md');
+        const expectedFilePath = path.join(rootDir, 'notes', 'test_2.md');
+
+        // Act
+        const actualFilePath = findUniqueFileName(filePath);
+
+        // Assert
+        assert.strictEqual(actualFilePath, expectedFilePath);
+    });
 });
