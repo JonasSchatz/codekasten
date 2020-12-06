@@ -1,6 +1,13 @@
 try {
     const vscode = acquireVsCodeApi();
 
+    window.onload = () => {
+        initDataviz;
+        console.log('Initialized DataViz');
+        vscode.postMessage({
+            type: "webviewDidLoad"
+        });
+    };
 
 
     window.addEventListener("message", event => {
@@ -9,6 +16,9 @@ try {
         switch (message.type) {
             case "didUpdateData":
                 const graphData = message.payload;
+                console.log(graphData);
+                
+                initDataviz(graphData);
                 console.log("didUpdateData");
                 vscode.postMessage({
                     type: "debug", 
@@ -21,12 +31,12 @@ try {
     console.log("VsCode not detected");
 }
 
-function initDataviz() {
+function initDataviz(data) {
     
-    const nodes = window.data.nodes;
-    const links = window.data.edges;
+    const nodes = data.nodes;
+    const links = data.edges;
 
-    var svg = d3.select("svg");
+    var svg = d3.select("svg").style("font", "12px sans-serif");
     var width = svg.attr("width");
     var height = svg.attr("height");
 
@@ -36,34 +46,34 @@ function initDataviz() {
         .force("x", d3.forceX())
         .force("y", d3.forceY())
         .force("center", d3.forceCenter(width/2, height/2));
-    
-
-    svg.style("font", "12px sans-serif");
-
-    
+        
     const link = svg.append("g")
         .attr("stroke", "#999")
         .attr("stroke-opacity", 0.6)
         .selectAll("line")
         .data(links)
         .join("line")
-        .attr("stroke-width", 10);
+        .attr("stroke-width", 1);
     
     const node = svg.append("g")
-        .attr("stroke", "#fff")
-        .attr("stroke-width", 1.5)
-        .selectAll("circle")
-        .data(nodes)
-        .join("circle")
-        .attr("r", 10)
-        .attr("fill", "#19D");
-        //.call(drag(simulation));
-    
+      .selectAll("g")
+      .data(nodes)
+      .join("g");
+
+    node.append("circle")
+      .attr("stroke", "white")
+      .attr("stroke-width", 1)
+      .attr("r", 4);
+
     node.append("text")
-        .attr("dx", 8)
-        .attr("dy", "0.31em")
-        .text(d => d.title)
-        .attr("fill", "black");
+        .attr("x", 8)
+        .attr("y", "0.31em")
+        .text(d => d.id)
+      .clone(true).lower()
+        .attr("fill", "none")
+        .attr("stroke", "white")
+        .attr("stroke-width", 3);
+
     
     simulation.on("tick", () => {
         link
@@ -72,13 +82,10 @@ function initDataviz() {
             .attr("x2", d => d.target.x)
             .attr("y2", d => d.target.y);
         
-        node
-            .attr("cx", d => d.x)
-            .attr("cy", d => d.y);
+            node.attr("transform", d => `translate(${d.x},${d.y})`);
     });
 
     invalidation.then(() => simulation.stop());
-    
 
 }
 
@@ -86,6 +93,6 @@ if (window.data) {
     console.log('Test mode');
 
     window.onload = () => {
-        initDataviz();
+        initDataviz(window.data);
     };
 }
