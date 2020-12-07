@@ -2,23 +2,15 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <script data-replace src="./d3.v6.min.js"></script>
-    <style>
-      body {
-        overflow: hidden;
-      }
-    </style>
+    <link rel="stylesheet" data-replace href="${graphStylesPath}">
+    <script src="{{./d3.v4.min.js}}"></script>
   </head>
   <body>
-    <svg width="960" height="600"></svg>
-    <div id="debug"><p>asdf</p></div>
-    <!-- To test the graph locally in a broswer:
-      1. copy the json data object received in the message payload
-      2. paste the content in test-data.js
-      3. uncomment the next <script ...> line
-      4. open this file in a browser
-    -->
-    <!--<script src="./test-data.js"></script> -->
-    <script data-replace src="./graph.js"></script>
+    <div class="buttons">
+      <span><span id="files">0</span> files</span>
+      <span><span id="connections">0</span> links</span>
+      <span><span id="zoom">1.00</span>x</span>
+    </div>
+    <script data-replace src="${graphPath}"></script>
   </body>
 </html>

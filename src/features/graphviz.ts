@@ -5,6 +5,8 @@ import * as fs from 'fs';
 import { Feature } from "./feature";
 import { TextDecoder } from "util";
 import { Note } from "../core/Note";
+import * as md5 from "md5";
+import { openNoteInWorkspace } from "../vscode/NoteActions";
 
 const feature: Feature = {
     activate: (context: vscode.ExtensionContext, graph: NoteGraph) => {
@@ -38,6 +40,12 @@ async function initializeWebviewPanel(context: vscode.ExtensionContext, graph: N
     panel.webview.onDidReceiveMessage(
         message => {
             console.log(message.type);
+
+            if (message.type === "click") {
+                console.log(message.payload);
+                openNoteInWorkspace(message.payload.path);
+                
+            }
         }, 
         undefined, 
         context.subscriptions
@@ -61,25 +69,24 @@ async function getWebviewContent(context: vscode.ExtensionContext, panel: vscode
     // Replace variables in HTML
     const textWithVariables = text.replace(
         "${graphPath}", 
-        "{{graph.js}}"
+        "{{./graph.js}}"
     ).replace(
-        "${graphStylePath}", 
-        "{{graph.css}}"
-    ).replace(
-        /<script data-replace src="([^"]+")/g,
-        match => {
-            const fileName = match.slice('<script data-replace src="'.length, -1).trim();
-            return '<script src="' + webviewUri(fileName) + '"';
-        }
+        "${graphStylesPath}", 
+        "{{./graph.css}}"
     );
-    console.log(textWithVariables);
-    return textWithVariables;
+
+    const filled = textWithVariables.replace(/\{\{.*\}\}/g, (match) => {
+        const fileName = match.slice(2, -2).trim();
+        return webviewUri(fileName);
+      });
+    console.log(filled);
+    return filled;
 }
 
 function updateGraph(panel: vscode.WebviewPanel, graph: NoteGraph) {
     const webviewData = generateWebviewData(graph);
     panel.webview.postMessage({
-        type: "didUpdateData", 
+        type: "refresh", 
         payload: webviewData
     });
 
@@ -87,15 +94,15 @@ function updateGraph(panel: vscode.WebviewPanel, graph: NoteGraph) {
 }
 
 function generateWebviewData(graph: NoteGraph) {
-    const webviewNodes: { id: string; title: string; }[] = [];
+    const webviewNodes: { id: string; label: string; path: string }[] = [];
     const webviewEdges: { source: string; target: string; }[] = [];
 
     graph.graph.nodes().forEach(id => {
         const note: Note = graph.graph.node(id);
-        webviewNodes.push({'id': note.path, 'title': note.title});
+        webviewNodes.push({'id': md5(note.path), 'label': note.title, 'path': note.path});
 
         for (const link of note.links) {
-            webviewEdges.push( { 'source': link.source, 'target': link.target});
+            webviewEdges.push( { 'source': md5(link.source), 'target': md5(link.target)});
         }
 
     });

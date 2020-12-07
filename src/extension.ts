@@ -10,7 +10,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	const config: Config = createConfigFromVsCode();
 	const parser: CodekastenParser = new CodekastenParser();
 	const codekastenGraph: NoteGraph = new NoteGraph();
-	await codekastenGraph.populateGraph(vscode.workspace.findFiles('**/*.md', '.codekasten'), parser);
+	await codekastenGraph.populateGraph(vscode.workspace.findFiles('**/*.md', '{.codekasten, ./index.md}'), parser);
 
 	try {
 		await checkCodekastenSetup();

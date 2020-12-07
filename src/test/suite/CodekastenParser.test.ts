@@ -53,6 +53,16 @@ suite('CodekastenParser', () => {
             assert.notStrictEqual(link.description, 'Image');
         }
     });
+
+    test('Parse Links: Ignore Internal Links', async () => {
+        // Prepare & Act
+        const {links, backlinks}: {links: MarkdownLink[], backlinks: MarkdownLink[]} = await getLinksForTest();
+
+        // Assert
+        for (const link of links.concat(backlinks)) {
+            assert.notStrictEqual(link.description, 'Internal Link');
+        }
+    });
     
     test('Parse Note: No backlinks section', async () => {
         // Todo

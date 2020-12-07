@@ -26,8 +26,9 @@
 			{
 				"command": "codekasten.search-note",
 				"title": "Codekasten: Search Note"
-			}, {
-				"command": "codekasten.update-graph", 
+			},
+			{
+				"command": "codekasten.update-graph",
 				"title": "Codekasten: Update Graph"
 			}
 		]
@@ -58,6 +59,8 @@
 	},
 	"dependencies": {
 		"@types/graphlib": "^2.1.7",
-		"graphlib": "^2.1.8"
+		"@types/md5": "^2.2.1",
+		"graphlib": "^2.1.8",
+		"md5": "^2.3.0"
 	}
 }

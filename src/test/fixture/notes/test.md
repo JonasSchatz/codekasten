@@ -8,6 +8,8 @@ Additionally, we have images:
 
 ![Image](./../images/demo_image.png)
 
+In the future, we might want to disable this [Internal Link](#internal).
+
 ---
 ### Backlinks
 [Backward Link](structure-note.md)

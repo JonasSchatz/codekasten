@@ -31,7 +31,7 @@ export class CodekastenParser implements Parser {
     }
 
     parseLinks(text: string, sourcePath: string): {links: MarkdownLink[], backlinks: MarkdownLink[]} {
-        const markdownLinkRe = /(?<!!)\[(?<text>[^\]\n]*)\]\((?!http|www)(?<target>[^\)\n]*)\)/gm;
+        const markdownLinkRe = /(?<!!)\[(?<text>[^\]\n]*)\]\((?!http|www|#)(?<target>[^\)\n]*)\)/gm;
         const backlinkAreaRe = /(?<=# Backlinks\s)((?:.|\s)+?)(---|$|#)/g;
         const backlinkArea = backlinkAreaRe.exec(text);
         if(backlinkArea) {
