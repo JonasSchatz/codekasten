@@ -16,6 +16,11 @@ const feature: Feature = {
                 panel = await initializeWebviewPanel(context, graph);
             })
         );
+
+        const noteAddedListener = graph.onDidAddNote(() => console.log('Added note in graph, shoud update panel'));
+        const noteUpdatedListener = graph.onDidUpdateNote(() => console.log('Updated note in graph, shoud update panel'));
+        const noteDeleteListener = graph.onDidDeleteNote(() => console.log('Deleted note in graph, shoud update panel'));
+
         context.subscriptions.push(
             vscode.commands.registerCommand("codekasten.update-graph", () => {
                 updateGraph(panel, graph);

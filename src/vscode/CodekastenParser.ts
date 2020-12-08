@@ -5,7 +5,6 @@ import { MarkdownLink } from "../core/Link";
 import * as path from 'path';
 import { loadFileAsString } from "./NoteActions";
 
-
 export class CodekastenParser implements Parser {
     async parse(uri: Uri) {
         var note: Note = new Note();

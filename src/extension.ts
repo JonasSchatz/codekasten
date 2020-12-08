@@ -3,14 +3,14 @@ import { features } from "./features";
 import { Config, createConfigFromVsCode, NoteGraph } from "./core";
 import { CodekastenParser } from "./vscode";
 import { checkCodekastenSetup } from './vscode/Verification';
+import { bootstrap } from './services/bootstrap';
 
 
 export async function activate(context: vscode.ExtensionContext) {
 
 	const config: Config = createConfigFromVsCode();
-	const parser: CodekastenParser = new CodekastenParser();
-	const codekastenGraph: NoteGraph = new NoteGraph();
-	await codekastenGraph.populateGraph(vscode.workspace.findFiles('**/*.md', '{.codekasten, ./index.md}'), parser);
+	const codekastenGraph: NoteGraph = await bootstrap();
+	
 
 	try {
 		await checkCodekastenSetup();
