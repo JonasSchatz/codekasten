@@ -1,7 +1,6 @@
 import * as vscode from "vscode";
 import { NoteGraph } from "../core";
 import * as path from 'path';
-import * as fs from 'fs';
 import { Feature } from "./feature";
 import { TextDecoder } from "util";
 import { Note } from "../core/Note";
