@@ -19,10 +19,11 @@ export function insertMarkdownLinkInCurrentNote(targetPath: string, title: strin
     insertTextInCurrentNote(stringRepresentation);
 }
 
-export function openNoteInWorkspace(path: string) {
+export function openNoteInWorkspace(path: string, column: vscode.ViewColumn) {
     var uri: vscode.Uri = vscode.Uri.parse("file:///" + path);
+    const options: vscode.TextDocumentShowOptions = {preview: false, viewColumn: column};
     vscode.workspace.openTextDocument(uri).then(doc => {
-        vscode.window.showTextDocument(doc);
+        vscode.window.showTextDocument(doc, options);
     });
 }
 

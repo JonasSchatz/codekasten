@@ -1,3 +1,8 @@
+/**
+ * Attribution: markdown-links by tchayen
+ * https://github.com/tchayen/markdown-links
+ */
+
 const RADIUS = 4;
 const ACTIVE_RADIUS = 6;
 const STROKE = 1;

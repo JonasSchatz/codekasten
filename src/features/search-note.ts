@@ -18,7 +18,7 @@ const feature: Feature = {
                     if (decision === 'Insert Link') {
                         noteActions.insertMarkdownLinkInCurrentNote(note.path, note.title);
                     } else if (decision === 'Open Note') {
-                        noteActions.openNoteInWorkspace(note.path);
+                        noteActions.openNoteInWorkspace(note.path, vscode.ViewColumn.Active);
                     } else {
                         vscode.window.showErrorMessage(`Unsupported action ${decision}`);
                     }

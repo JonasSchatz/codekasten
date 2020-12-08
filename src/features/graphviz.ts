@@ -11,22 +11,39 @@ import { openNoteInWorkspace } from "../vscode/NoteActions";
 const feature: Feature = {
     activate: (context: vscode.ExtensionContext, graph: NoteGraph) => {
         var panel: vscode.WebviewPanel;
+
         context.subscriptions.push(
             vscode.commands.registerCommand("codekasten.show-graph", async () => {
                 panel = await initializeWebviewPanel(context, graph);
+
+                const noteAddedListener = graph.onDidAddNote(() => sendGraph(graph, panel, 'Webview update, onDidAddNote'));
+                const noteUpdatedListener = graph.onDidUpdateNote(() => sendGraph(graph, panel, 'Webview update, onDidUpdateNote'));
+                const noteDeleteListener = graph.onDidDeleteNote(() => sendGraph(graph, panel, 'Webview update, onDidDeleteNote'));
+
+                panel.onDidDispose(() => {
+                    noteAddedListener.dispose();
+                    noteUpdatedListener.dispose();
+                    noteDeleteListener.dispose();
+                });
             })
         );
-
-        const noteAddedListener = graph.onDidAddNote(() => console.log('Added note in graph, shoud update panel'));
-        const noteUpdatedListener = graph.onDidUpdateNote(() => console.log('Updated note in graph, shoud update panel'));
-        const noteDeleteListener = graph.onDidDeleteNote(() => console.log('Deleted note in graph, shoud update panel'));
 
         context.subscriptions.push(
             vscode.commands.registerCommand("codekasten.update-graph", () => {
-                updateGraph(panel, graph);
+                sendGraph(graph, panel, 'Webview update, manual trigger');
             })
         );
     }
+};
+
+
+function sendGraph(graph: NoteGraph, panel: vscode.WebviewPanel, debugMessage: string) {
+    console.log(debugMessage);
+    const webviewData = generateWebviewData(graph);
+    panel.webview.postMessage({
+        type: "refresh", 
+        payload: webviewData
+    });
 };
 
 async function initializeWebviewPanel(context: vscode.ExtensionContext, graph: NoteGraph) {
@@ -40,7 +57,7 @@ async function initializeWebviewPanel(context: vscode.ExtensionContext, graph: N
         }
     );
 
-    panel.webview.html = await getWebviewContent(context, panel);
+    panel.webview.html = await generateWebviewHtml(context, panel);
 
     panel.webview.onDidReceiveMessage(
         message => {
@@ -48,8 +65,11 @@ async function initializeWebviewPanel(context: vscode.ExtensionContext, graph: N
 
             if (message.type === "click") {
                 console.log(message.payload);
-                openNoteInWorkspace(message.payload.path);
-                
+                openNoteInWorkspace(message.payload.path, vscode.ViewColumn.One);
+            }
+
+            if (message.type === 'ready') {
+                sendGraph(graph, panel, 'Webview update, initial');
             }
         }, 
         undefined, 
@@ -60,8 +80,10 @@ async function initializeWebviewPanel(context: vscode.ExtensionContext, graph: N
 }
 
 
-
-async function getWebviewContent(context: vscode.ExtensionContext, panel: vscode.WebviewPanel) {
+/**
+ * Replaces the placeholders in the HTML template file with the respective files at the extensionPath
+ */
+async function generateWebviewHtml(context: vscode.ExtensionContext, panel: vscode.WebviewPanel) {
     const webviewContentPath = vscode.Uri.file(path.join(context.extensionPath, 'static', 'dataviz.html'));
     const file = await vscode.workspace.fs.readFile(webviewContentPath);
     const text = new TextDecoder('utf-8').decode(file);
@@ -71,7 +93,6 @@ async function getWebviewContent(context: vscode.ExtensionContext, panel: vscode
             vscode.Uri.file(path.join(context.extensionPath, "static", fileName))
         ).toString();
 
-    // Replace variables in HTML
     const textWithVariables = text.replace(
         "${graphPath}", 
         "{{./graph.js}}"
@@ -84,27 +105,24 @@ async function getWebviewContent(context: vscode.ExtensionContext, panel: vscode
         const fileName = match.slice(2, -2).trim();
         return webviewUri(fileName);
       });
-    console.log(filled);
     return filled;
 }
 
-function updateGraph(panel: vscode.WebviewPanel, graph: NoteGraph) {
-    const webviewData = generateWebviewData(graph);
-    panel.webview.postMessage({
-        type: "refresh", 
-        payload: webviewData
-    });
-
-    
-}
-
+/**
+ * Turn the NoteGraph into a list of nodes and edges for D3 to consume
+ */
 function generateWebviewData(graph: NoteGraph) {
     const webviewNodes: { id: string; label: string; path: string }[] = [];
     const webviewEdges: { source: string; target: string; }[] = [];
 
     graph.graph.nodes().forEach(id => {
         const note: Note = graph.graph.node(id);
-        webviewNodes.push({'id': md5(note.path), 'label': note.title, 'path': note.path});
+        console.log(`GenerateWebviewData: Title is ${note.title}`);
+        webviewNodes.push({
+            'id': md5(note.path), 
+            'label': note.title ? note.title : path.basename(note.path, path.extname(note.path)), 
+            'path': note.path
+        });
 
         for (const link of note.links) {
             webviewEdges.push( { 'source': md5(link.source), 'target': md5(link.target)});
@@ -112,17 +130,16 @@ function generateWebviewData(graph: NoteGraph) {
 
     });
 
-
     const webviewData = {
         'nodes': webviewNodes, 
         'edges': webviewEdges
     };
 
-    const writeBytes = Buffer.from(JSON.stringify(webviewData), 'utf8');
-    fs.writeFileSync(path.resolve(__dirname, '../..', 'static', 'test_data_autogenerated.js'), JSON.stringify(webviewData));
+    // Debug: Write the data to a file
+    //const writeBytes = Buffer.from(JSON.stringify(webviewData), 'utf8');
+    //fs.writeFileSync(path.resolve(__dirname, '../..', 'static', 'test_data_autogenerated'), JSON.stringify(webviewData));
 
     return webviewData;
 }
-
 
 export default feature;

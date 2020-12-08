@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { NoteGraph } from '../core';
 import { Note } from '../core/Note';
 import * as path from "path";
+import * as md5 from 'md5'
 
 export function letUserSearchNoteByTitle(graph: NoteGraph): Promise<Note> {
     const noteQuickPick = vscode.window.createQuickPick();
@@ -15,7 +16,12 @@ export function letUserSearchNoteByTitle(graph: NoteGraph): Promise<Note> {
     var noteQuickPickPromise = new Promise<Note>(resolve => {
         noteQuickPick.onDidAccept( () => {
             const selectedQuickPickItem: vscode.QuickPickItem = noteQuickPick.selectedItems[0];
-            const selectedNote: Note = graph.graph.node(selectedQuickPickItem.description);
+            const id: string = md5(selectedQuickPickItem.description);
+            const selectedNote: Note = graph.graph.node(id);
+            if(!selectedNote) {
+                const path: string = selectedQuickPickItem.description;
+                vscode.window.showErrorMessage(`Could not retrieve Note with id ${id} from ${path}`);
+            }
             resolve(selectedNote);
         });
     });

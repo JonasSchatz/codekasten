@@ -45,18 +45,18 @@ export class NoteGraph {
         }
 
         if (nodeAlreadyExists) {
-            this.onDidUpdateNoteEmitter.fire(id);
             console.log(`setNote ${note.path}: Updating, set new`);
+            this.onDidUpdateNoteEmitter.fire(id);
         } else {
-            this.onDidAddNoteEmitter.fire(id);
             console.log(`setNote ${note.path}: Added new node`);
+            this.onDidAddNoteEmitter.fire(id);
         }
     }
 
     deleteNote(id: string) {
         this.graph.removeNode(id);
-        this.onDidDeleteEmitter.fire(id);
         console.log(`deleteNote ${id}: Deledted`);
+        this.onDidDeleteEmitter.fire(id);
     }
 
     async populateGraph(urisPromise: Thenable<Array<Uri>>, parser: Parser) {
