@@ -109,24 +109,29 @@ async function generateWebviewHtml(context: vscode.ExtensionContext, panel: vsco
 
 /**
  * Turn the NoteGraph into a list of nodes and edges for D3 to consume
+ * Stubs will be omitted
  */
 function generateWebviewData(graph: NoteGraph) {
     const webviewNodes: { id: string; label: string; path: string }[] = [];
     const webviewEdges: { source: string; target: string; }[] = [];
 
     graph.graph.nodes().forEach(id => {
-        const note: Note = graph.graph.node(id);
-        console.log(`GenerateWebviewData: Title is ${note.title}`);
+        const sourceNote: Note = graph.graph.node(id);
+
+        if(sourceNote.isStub) {return;};
+
         webviewNodes.push({
-            'id': md5(note.path), 
-            'label': note.title ? note.title : path.basename(note.path, path.extname(note.path)), 
-            'path': note.path
+            'id': md5(sourceNote.path), 
+            'label': sourceNote.title ? sourceNote.title : path.basename(sourceNote.path, path.extname(sourceNote.path)), 
+            'path': sourceNote.path
         });
 
-        for (const link of note.links) {
-            webviewEdges.push( { 'source': md5(link.source), 'target': md5(link.target)});
+        for (const link of sourceNote.links) {
+            const targetNote: Note = graph.graph.node(md5(link.target))
+            if(!targetNote.isStub) {
+                webviewEdges.push( { 'source': md5(link.source), 'target': md5(link.target)});
+            }
         }
-
     });
 
     const webviewData = {

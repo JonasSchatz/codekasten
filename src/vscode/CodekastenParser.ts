@@ -10,6 +10,7 @@ export class CodekastenParser implements Parser {
         var note: Note = new Note();
 
         note.path = uri.fsPath;
+        note.isStub = false;
 
         var readStr: string = await loadFileAsString(uri);
 

@@ -6,4 +6,5 @@ export class Note {
     links: Array<Link>;
     backlinks: Array<Link>;
     title: string;
+    isStub: boolean;
 }
