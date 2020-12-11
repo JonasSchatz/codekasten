@@ -13,7 +13,7 @@ const FONT_BASELINE = 15;
 
 
 try {
-  const vscode = acquireVsCodeApi();
+  var vscode = acquireVsCodeApi();
   var nodesData = [];
   var linksData = [];
   vscode.postMessage({ type: "ready" });
