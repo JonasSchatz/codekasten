@@ -27,9 +27,14 @@ export class NoteGraph {
         this.onDidDeleteNote = this.onDidDeleteEmitter.event;
     }
 
+    /**
+     * Add a note and all outgoing links (forwardLink) to the graph
+     * If the target of the forwardLink is not yet in the graph, add a stub
+     */
     setNote(note: Note) {
         const id: string = md5(note.path);
         var nodeAlreadyExists: boolean = this.graph.hasNode(id);
+
         if(nodeAlreadyExists) {
             this.graph.removeNode(id);
             console.log(`setNote ${note.path}: Updating, remove original`);
@@ -39,7 +44,14 @@ export class NoteGraph {
 
         for (const forwardLink of note.links) {
             if (!this.graph.hasNode(md5(forwardLink.target))) {
-                this.graph.setNode(md5(forwardLink.target));
+                const stub: Note = {
+                    path: forwardLink.target, 
+                    links: [], 
+                    isStub: true, 
+                    backlinks: [], 
+                    title: ''
+                }
+                this.graph.setNode(md5(forwardLink.target), stub);
             }
             this.graph.setEdge(md5(forwardLink.source), md5(forwardLink.target));
         }
@@ -65,12 +77,6 @@ export class NoteGraph {
         for (const uri of uris) {
             var note: Note = await parser.parse(uri);
             this.setNote(note);
-
-            for (const link of note.links) {
-                //if (!this.graph.hasNode(link.target)) {
-                //    this.graph.setNode(link.target);
-                //}
-            }
         }
 
     }

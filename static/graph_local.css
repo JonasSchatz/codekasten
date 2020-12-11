@@ -20,26 +20,15 @@ body {
 }
 
 .links line {
-  stroke: var(--vscode-editor-foreground);
+  stroke: green;
   opacity: 0.5;
 }
 
-.links line[class=stub] {
-  stroke: var(--vscode-editorIndentGuide-background);
-}
-
-
-
 .nodes circle {
   cursor: pointer;
-  fill: var(--vscode-editor-foreground);
+  fill: red;
   transition: all 0.15s ease-out;
 }
-
-.nodes circle[class=stub] {
-	fill: var(--vscode-editorIndentGuide-background);
-}
-
 
 .text text {
   cursor: pointer;
@@ -47,7 +36,7 @@ body {
 }
 
 .text text[class=stub] {
-  fill: var(--vscode-editorIndentGuide-background);
+  fill: gray;
 }
 
 .nodes [active],
@@ -56,3 +45,6 @@ body {
   fill: var(--vscode-textLink-foreground);
 }
 
+.nodes circle[class=stub] {
+	fill: blue;
+}

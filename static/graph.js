@@ -1,5 +1,5 @@
 /**
- * Attribution: markdown-links by tchayen
+ * Attribution: Adjusted from 'markdown-links' by tchayen
  * https://github.com/tchayen/markdown-links
  */
 
@@ -10,10 +10,19 @@ const FONT_SIZE = 14;
 const TICKS = 5000;
 const FONT_BASELINE = 15;
 
-let nodesData = [];
-let linksData = [];
 
-const vscode = acquireVsCodeApi();
+
+try {
+  var vscode = acquireVsCodeApi();
+  var nodesData = [];
+  var linksData = [];
+  vscode.postMessage({ type: "ready" });
+} catch(err) {
+  var nodesData = window.data.nodes;
+  var linksData = window.data.edges;
+  console.log(`Local testing. Found ${nodesData.length} nodes and ${linksData} edges`);
+}
+
 
 const onClick = (d) => {
   vscode.postMessage({ type: "click", payload: d });
@@ -70,12 +79,11 @@ const reportWindowSize = () => {
 
 window.onresize = reportWindowSize;
 
+
 const svg = d3.select("svg");
 const width = Number(svg.attr("width"));
 const height = Number(svg.attr("height"));
 let zoomLevel = 1;
-
-console.log(JSON.stringify({ nodesData, linksData }, null, 2));
 
 const simulation = d3
   .forceSimulation(nodesData)
@@ -173,24 +181,33 @@ const restart = () => {
   node = node
     .enter()
     .append("circle")
-    .attr("r", RADIUS)
+    .attr("class", (d) => d.isStub ? "stub" : "note")
+    .attr("r", (d) => d.isStub ? 1 : RADIUS)
     .on("click", onClick)
     .merge(node);
 
-  link = link.data(linksData, (d) => `${d.source.id}-${d.target.id}`);
+  link = link
+    .data(linksData, (d) => `${d.source.id}-${d.target.id}`);
   link.exit().remove();
-  link = link.enter().append("line").attr("stroke-width", STROKE).merge(link);
+  link = link
+    .enter()
+    .append("line")
+    .attr("stroke-width", STROKE)
+    .attr("class", (d) => d.targetIsStub ? "stub" : "note")
+    .merge(link);
 
   text = text.data(nodesData, (d) => d.label);
   text.exit().remove();
   text = text
     .enter()
     .append("text")
+    .attr("class", (d) => d.isStub ? "stub" : "note")
     .text((d) => d.label.replace(/_*/g, ""))
     .attr("font-size", `${FONT_SIZE}px`)
     .attr("text-anchor", "middle")
     .attr("alignment-baseline", "central")
     .on("click", onClick)
+    .attr("class", (d) => d.isStub ? "stub" : "note")
     .merge(text);
 
   simulation.nodes(nodesData);
@@ -210,4 +227,3 @@ const zoomHandler = d3.zoom().scaleExtent([0.2, 3]).on("zoom", resize);
 zoomHandler(svg);
 restart();
 
-vscode.postMessage({ type: "ready" });

@@ -5,8 +5,8 @@ If you don't know what a Zettelkasten is, there are many resources on the web, b
 
 To harness the full power of markdown documents in VS Code, [Markdown Preview Enhanced](https://marketplace.visualstudio.com/items?itemName=shd101wyy.markdown-preview-enhanced) is recommended. 
 
-> ⚠️ Warning: This extension is _absolutely_ not ready for production.
-> Use on your own risk and always make sure to backup your notes. 
+> ⚠️ Warning: This extension is not ready for production.   
+> ⚠️ Use at your own risk and always make sure to backup your notes. 
 
 ## Features
 

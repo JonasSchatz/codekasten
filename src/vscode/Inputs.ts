@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { NoteGraph } from '../core';
 import { Note } from '../core/Note';
 import * as path from "path";
-import * as md5 from 'md5'
+import * as md5 from 'md5';
 
 export function letUserSearchNoteByTitle(graph: NoteGraph): Promise<Note> {
     const noteQuickPick = vscode.window.createQuickPick();
@@ -27,6 +27,22 @@ export function letUserSearchNoteByTitle(graph: NoteGraph): Promise<Note> {
     });
     noteQuickPick.show();
     return noteQuickPickPromise;
+}
+
+export async function letUserChooseText(prompt: string, suggestion: string = '', value: string = ''): Promise<string> {
+    const inputBox = vscode.window.createInputBox();
+    inputBox.prompt = prompt;
+    inputBox.placeholder = suggestion;
+    inputBox.value = value;
+    inputBox.onDidHide(() => inputBox.dispose());
+
+    var inputBoxPromise = new Promise<string>(resolve => {
+        inputBox.onDidAccept( () => {
+            resolve(inputBox.value);
+        });
+    });
+    inputBox.show();
+    return inputBoxPromise;
 }
 
 export async function letUserChooseNoteAction(): Promise<string> {

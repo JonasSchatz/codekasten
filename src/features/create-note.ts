@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { Feature } from "./feature";
 import { NoteGraph } from "../core";
-import { letUserChooseTemplate } from "../vscode/Inputs";
+import { letUserChooseTemplate, letUserChooseText } from "../vscode/Inputs";
 import { createNote, openNoteInWorkspace } from "../vscode/NoteActions";
 import { MarkdownLink } from "../core/Link";
 
@@ -14,24 +14,33 @@ const feature: Feature = {
 
                     const activeEditor: vscode.TextEditor | undefined = vscode.window.activeTextEditor;
                     const selection = activeEditor?.selection;
-                    const selectionText: string | undefined = vscode.window.activeTextEditor.document.getText(selection);
-
-                    const templatePath: string = await letUserChooseTemplate();
+                    const selectionText: string | undefined = vscode.window.activeTextEditor?.document?.getText(selection);
                     
-                    if (selection !== undefined && !selection.isEmpty && selection.isSingleLine) {
-                        var titleSuggestion: string = selectionText;
-                    } else {
-                        var titleSuggestion: string = '';
+                    // QuickPick: Template
+                    try {
+                        var templatePath: string = await letUserChooseTemplate();
+                    } catch(err) {
+                        return;
                     }
-                    var title: string = await vscode.window.showInputBox({
-                        prompt: `Enter the title...`, 
-                        value: titleSuggestion
-                    });
+                    
+                    // InputBox: Title
+                    try{
+                        if (selection !== undefined && !selection.isEmpty && selection.isSingleLine) {
+                            var titleSuggestion: string = selectionText;
+                        } else {
+                            var titleSuggestion: string = '';
+                        }
+                        var title: string = await letUserChooseText('Please enter the title...', titleSuggestion); 
+                    } catch(err) {
+                        return;
+                    }
 
-                    const filename: string = await vscode.window.showInputBox({
-                        prompt: `Enter the filename for the new note`, 
-                        value: convertToKebabCase(title) 
-                    });
+                    // InputBox: FileName
+                    try{
+                        var filename: string = await letUserChooseText('Enter the filename for the new note', '', convertToKebabCase(title));
+                    } catch(err) {
+                        return; 
+                    }
 
                     if (selection !== undefined && !selection.isEmpty && !selection.isSingleLine) {
                         var body: string = selectionText;
@@ -45,9 +54,13 @@ const feature: Feature = {
                     var filePath: string = `${rootDir}/notes/${filename}.md`;
                     filePath = await createNote(filePath, content, false);
                     
-                    const markdownLink: MarkdownLink = new MarkdownLink(activeEditor.document.uri.fsPath, filePath);
-                    markdownLink.description = title;
-                    activeEditor.edit(editBuilder => editBuilder.replace(selection, markdownLink.createStringRepresentation()));
+                    // If there was an non-empty selection: Insert a markdown link instead of the selection
+                    if (selection !== undefined && !selection.isEmpty) {
+                        const markdownLink: MarkdownLink = new MarkdownLink(activeEditor.document.uri.fsPath, filePath);
+                        markdownLink.description = title;
+                        activeEditor.edit(editBuilder => editBuilder.replace(selection, markdownLink.createStringRepresentation()));
+                    }
+                    
                     openNoteInWorkspace(filePath, vscode.ViewColumn.Active);
 
                 }
@@ -67,7 +80,11 @@ async function createNoteContentFromTemplate(templatePath: string, placeholders:
 }
 
 function convertToKebabCase(str: string): string {
-    return str.replace(/([a-z])([A-Z])/g, '$1-$2').replace(/\s+/g, '-').toLowerCase();
+    return str
+        .replace(/\W/g, '')
+        .replace(/([a-z])([A-Z])/g, '$1-$2')
+        .replace(/\s+/g, '-')
+        .toLowerCase();
 }
 
 export default feature;
