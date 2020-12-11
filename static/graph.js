@@ -1,5 +1,5 @@
 /**
- * Attribution: markdown-links by tchayen
+ * Attribution: Adjusted from 'markdown-links' by tchayen
  * https://github.com/tchayen/markdown-links
  */
 
@@ -16,6 +16,7 @@ try {
   const vscode = acquireVsCodeApi();
   var nodesData = [];
   var linksData = [];
+  vscode.postMessage({ type: "ready" });
 } catch(err) {
   var nodesData = window.data.nodes;
   var linksData = window.data.edges;
@@ -78,12 +79,11 @@ const reportWindowSize = () => {
 
 window.onresize = reportWindowSize;
 
+
 const svg = d3.select("svg");
 const width = Number(svg.attr("width"));
 const height = Number(svg.attr("height"));
 let zoomLevel = 1;
-
-console.log(JSON.stringify({ nodesData, linksData }, null, 2));
 
 const simulation = d3
   .forceSimulation(nodesData)
@@ -227,4 +227,3 @@ const zoomHandler = d3.zoom().scaleExtent([0.2, 3]).on("zoom", resize);
 zoomHandler(svg);
 restart();
 
-vscode.postMessage({ type: "ready" });
