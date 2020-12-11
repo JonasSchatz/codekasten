@@ -43,9 +43,23 @@ export class NoteGraph {
     setNote(note: Note) {
         const id: string = md5(note.path);
         var nodeAlreadyExists: boolean = this.graph.hasNode(id);
+        
+        // If it exists, remove the node and all outgoing edges. 
+        // They will be re-added after parsing the new content
+        if(nodeAlreadyExists){
+            const outEdges: void | Edge[] = this.graph.outEdges(id);
+            if(outEdges){
+                for(const outEdge of outEdges){
+                    this.graph.removeEdge(outEdge);
+                    if(this.graph.node(outEdge.w).isStub){
+                        this.graph.removeNode(outEdge.w);
+                    }
+                }
+            }
+        }
 
+        // Add the node and all outgoing edges
         this.graph.setNode(id, new GraphNote(note));
-
         for (const forwardLink of note.links) {
             if (!this.graph.hasNode(md5(forwardLink))) {
                 const stub: GraphNote = {
