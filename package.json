@@ -23,6 +23,25 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "codekasten",
+					"title": "Codekasten",
+					"icon": "static/codekasten_logo.svg"
+				}
+			]
+		}, 
+		"views": {
+			"codekasten": [
+				{
+					"id": "backlinks",
+					"name": "backlinks",
+					"icon": "static/codekasten_logo.svg", 
+					"contextualTitle": "Codekasten"
+				}
+			]
+		}, 
 		"commands": [
 			{
 				"command": "codekasten.create-note",
