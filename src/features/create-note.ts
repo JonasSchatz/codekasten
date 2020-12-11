@@ -58,7 +58,7 @@ const feature: Feature = {
                     if (selection !== undefined && !selection.isEmpty) {
                         const markdownLink: MarkdownLink = new MarkdownLink(activeEditor.document.uri.fsPath, filePath);
                         markdownLink.description = title;
-                        activeEditor.edit(editBuilder => editBuilder.replace(selection, markdownLink.createStringRepresentation()));
+                        activeEditor.edit(editBuilder => editBuilder.replace(selection, markdownLink.stringRepresentation));
                     }
                     
                     openNoteInWorkspace(filePath, vscode.ViewColumn.Active);

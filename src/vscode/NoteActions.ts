@@ -15,7 +15,7 @@ export function insertMarkdownLinkInCurrentNote(targetPath: string, title: strin
     const sourcePath: string = vscode.window.activeTextEditor.document.uri.fsPath;
     const markdownLink: MarkdownLink = new MarkdownLink(sourcePath, targetPath);
     markdownLink.description = title;
-    const stringRepresentation: string = markdownLink.createStringRepresentation();
+    const stringRepresentation: string = markdownLink.stringRepresentation;
     insertTextInCurrentNote(stringRepresentation);
 }
 
@@ -66,4 +66,17 @@ export async function loadFileAsString(fileIdentifier: string | vscode.Uri): Pro
     var readData = await vscode.workspace.fs.readFile(filePath);
     var readStr: string = Buffer.from(readData).toString('utf8');
     return readStr;
+}
+
+export async function replaceTextInFile(filePath: string, oldText: string, newText: string) {
+    const content: string = await loadFileAsString(filePath);
+    const newContent: string = content.replace(oldText, newText);
+    if(content !== newContent) {
+        await createNote(filePath, newContent, true);
+    }
+    
+}
+
+export function escapeRegex(str: string) {
+    return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }

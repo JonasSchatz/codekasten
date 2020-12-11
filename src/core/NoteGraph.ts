@@ -129,4 +129,27 @@ export class NoteGraph {
             return edges.map((edge) => this.graph.node(edge.w).path);
         } 
     }
+
+    updateId(oldId: string, newId: string) {
+        const oldNode: GraphNote = this.graph.node(oldId);
+        const inEdges: void | Edge[] = this.graph.inEdges(oldId);
+        const outEdges: void | Edge[] = this.graph.outEdges(oldId);
+
+        this.graph.setNode(newId, oldNode);
+        
+
+        if(inEdges){
+            for(const inEdge of inEdges){
+                this.graph.setEdge(inEdge.v, newId);
+            }
+        }
+
+        if(outEdges){
+            for(const outEdge of outEdges){
+                this.graph.setEdge(newId, outEdge.w);
+            }
+        }
+
+        this.graph.removeNode(oldId);
+    }
 }
