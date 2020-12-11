@@ -3,13 +3,22 @@ import { Uri } from 'vscode';
 import { Note } from './Note';
 import { Parser } from './Parser';
 import * as md5 from 'md5';
-
-import * as vscode from 'vscode'; //Todo: Remove
-import { Link, MarkdownLink } from './Link';
 import { Event, Emitter } from './common/event';
 
+
+export class GraphNote{
+    path: string;
+    title: string;
+    isStub: boolean;
+
+    constructor(note: Note) {
+        this.path = note.path;
+        this.title = note.title;
+        this.isStub = note.isStub;
+    }
+}
+
 export class NoteGraph {
-    
 
     onDidAddNote: Event<string>;
     onDidUpdateNote: Event<string>;
@@ -34,21 +43,33 @@ export class NoteGraph {
     setNote(note: Note) {
         const id: string = md5(note.path);
         var nodeAlreadyExists: boolean = this.graph.hasNode(id);
+        
+        // If it exists, remove the node and all outgoing edges. 
+        // They will be re-added after parsing the new content
+        if(nodeAlreadyExists){
+            const outEdges: void | Edge[] = this.graph.outEdges(id);
+            if(outEdges){
+                for(const outEdge of outEdges){
+                    this.graph.removeEdge(outEdge);
+                    if(this.graph.node(outEdge.w).isStub){
+                        this.graph.removeNode(outEdge.w);
+                    }
+                }
+            }
+        }
 
-        this.graph.setNode(id, note);
-
+        // Add the node and all outgoing edges
+        this.graph.setNode(id, new GraphNote(note));
         for (const forwardLink of note.links) {
-            if (!this.graph.hasNode(md5(forwardLink.target))) {
-                const stub: Note = {
-                    path: forwardLink.target, 
-                    links: [], 
+            if (!this.graph.hasNode(md5(forwardLink))) {
+                const stub: GraphNote = {
+                    path: forwardLink, 
                     isStub: true, 
-                    backlinks: [], 
                     title: ''
                 };
-                this.graph.setNode(md5(forwardLink.target), stub);
+                this.graph.setNode(md5(forwardLink), stub);
             }
-            this.graph.setEdge(md5(forwardLink.source), md5(forwardLink.target));
+            this.graph.setEdge(id, md5(forwardLink));
         }
 
         if (nodeAlreadyExists) {
@@ -57,6 +78,20 @@ export class NoteGraph {
             this.onDidAddNoteEmitter.fire(id);
         }
     }
+
+    getNote(id: string): Note {
+        const graphNote: GraphNote = this.graph.node(id);
+        const note: Note = {
+            title: graphNote.title,
+            path: graphNote.path,
+            links: this.getForwardLinksAsString(id),
+            backlinks: this.getBacklinksAsString(id),
+            isStub: graphNote.isStub
+        };
+        return note;
+    }
+
+
 
     deleteNote(id: string) {
         this.graph.removeNode(id);
@@ -84,13 +119,51 @@ export class NoteGraph {
         return positiveNotes;
     }
 
-    getBacklinks(targetId: string): Note[] {
+    getBacklinksAsString(targetId: string): string[] {
+        return this.getBacklinksAsNote(targetId).map(note => note.path);
+    }
+
+    getBacklinksAsNote(targetId: string): Note[] {
         const edges: void | Edge[] = this.graph.inEdges(targetId);
 
         if(!edges){
             return [];
         } else {
             return edges.map((edge) => this.graph.node(edge.v));
+        }  
+    }
+
+
+    getForwardLinksAsString(sourceId: string): string[] {
+        const edges: void | Edge[] = this.graph.outEdges(sourceId);
+
+        if(!edges){
+            return [];
+        } else {
+            return edges.map((edge) => this.graph.node(edge.w).path);
         } 
+    }
+
+    updateId(oldId: string, newId: string) {
+        const oldNode: GraphNote = this.graph.node(oldId);
+        const inEdges: void | Edge[] = this.graph.inEdges(oldId);
+        const outEdges: void | Edge[] = this.graph.outEdges(oldId);
+
+        this.graph.setNode(newId, oldNode);
+        
+
+        if(inEdges){
+            for(const inEdge of inEdges){
+                this.graph.setEdge(inEdge.v, newId);
+            }
+        }
+
+        if(outEdges){
+            for(const outEdge of outEdges){
+                this.graph.setEdge(newId, outEdge.w);
+            }
+        }
+
+        this.graph.removeNode(oldId);
     }
 }

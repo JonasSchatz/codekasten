@@ -15,8 +15,8 @@ export class CodekastenParser implements Parser {
         var readStr: string = await loadFileAsString(uri);
 
         const {links, backlinks}: {links: MarkdownLink[], backlinks: MarkdownLink[]} = this.parseLinks(readStr, note.path);
-        note.links = links;
-        note.backlinks = backlinks;
+        note.links = links.map(link => link.target);
+        note.backlinks = backlinks.map(link => link.source);
         
         
         const titleRe = /^# (.*)/;

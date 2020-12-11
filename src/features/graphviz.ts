@@ -116,7 +116,7 @@ function generateWebviewData(graph: NoteGraph) {
     const webviewEdges: { source: string; target: string; targetIsStub: boolean }[] = [];
 
     graph.graph.nodes().forEach(id => {
-        const sourceNote: Note = graph.graph.node(id);
+        const sourceNote: Note = graph.getNote(id);
 
         webviewNodes.push({
             'id': md5(sourceNote.path), 
@@ -126,10 +126,10 @@ function generateWebviewData(graph: NoteGraph) {
         });
 
         for (const link of sourceNote.links) {
-            const targetNote: Note = graph.graph.node(md5(link.target));
+            const targetNote: Note = graph.getNote(md5(link));
             webviewEdges.push( { 
-                'source': md5(link.source), 
-                'target': md5(link.target), 
+                'source': id, 
+                'target': md5(link), 
                 'targetIsStub': targetNote.isStub
             });
         }

@@ -41,7 +41,7 @@ class BacklinkTreedataProvider implements vscode.TreeDataProvider<TreeItem> {
         const currentlyOpen = vscode.window.activeTextEditor?.document?.uri.fsPath;
         if(!currentlyOpen) {return treeItems;};
 
-        const notes: Note[]  = this.graph.getBacklinks(md5(currentlyOpen));
+        const notes: Note[]  = this.graph.getBacklinksAsNote(md5(currentlyOpen));
         for(const note of notes){
             const treeItem: TreeItem = {
                 label: note.title, 
