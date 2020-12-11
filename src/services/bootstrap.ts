@@ -21,5 +21,9 @@ export const bootstrap = async(): Promise<NoteGraph> => {
         codekastenGraph.deleteNote(md5(uri.fsPath));
     });
 
+    vscode.workspace.onWillRenameFiles(event => {
+        console.log('File Rename Event!');
+    });
+
     return codekastenGraph;
 };

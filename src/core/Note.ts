@@ -3,8 +3,8 @@ import { Link } from "./Link";
 
 export class Note {
     path: string;
-    links: Array<Link>;
-    backlinks: Array<Link>;
+    links: Array<string>;
+    backlinks: Array<string>;
     title: string;
     isStub: boolean;
 }
