@@ -1,9 +1,12 @@
-import * as vscode from 'vscode';
-import { Feature } from "./feature";
-import { NoteGraph } from "../core";
-import { openNoteInWorkspace } from "../vscode/NoteActions";
 import * as md5 from 'md5';
+import * as vscode from 'vscode';
+
+import { NoteGraph } from "../core";
 import { Note } from '../core/Note';
+import { openNoteInWorkspace } from "../vscode/NoteActions";
+
+import { Feature } from "./feature";
+
 
 const feature: Feature = {
     activate: (context: vscode.ExtensionContext, graph: NoteGraph) => {

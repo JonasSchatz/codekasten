@@ -1,10 +1,8 @@
-import { Uri } from "vscode";
-import { Link } from "./Link";
-
 export class Note {
     path: string;
+    title: string;
     links: Array<string>;
     backlinks: Array<string>;
-    title: string;
+    tags: Array<string>;
     isStub: boolean;
 }
