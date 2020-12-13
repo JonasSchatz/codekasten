@@ -4,16 +4,19 @@ import { Note } from './Note';
 import { Parser } from './Parser';
 import * as md5 from 'md5';
 import { Event, Emitter } from './common/event';
+import { notStrictEqual } from 'assert';
 
 
 export class GraphNote{
     path: string;
     title: string;
+    tags: string[];
     isStub: boolean;
 
     constructor(note: Note) {
         this.path = note.path;
         this.title = note.title;
+        this.tags = note.tags;
         this.isStub = note.isStub;
     }
 }
@@ -63,9 +66,10 @@ export class NoteGraph {
         for (const forwardLink of note.links) {
             if (!this.graph.hasNode(md5(forwardLink))) {
                 const stub: GraphNote = {
+                    title: '',
                     path: forwardLink, 
-                    isStub: true, 
-                    title: ''
+                    tags: [],
+                    isStub: true 
                 };
                 this.graph.setNode(md5(forwardLink), stub);
             }
@@ -82,13 +86,27 @@ export class NoteGraph {
     getNote(id: string): Note {
         const graphNote: GraphNote = this.graph.node(id);
         const note: Note = {
-            title: graphNote.title,
             path: graphNote.path,
+            title: graphNote.title,
             links: this.getForwardLinksAsString(id),
             backlinks: this.getBacklinksAsString(id),
+            tags: graphNote.tags,
             isStub: graphNote.isStub
         };
         return note;
+    }
+
+    /**
+     * Return all notes with the specified tag
+     */
+    getNotesWithTag(tag: string): Note[] {
+        const notes: Note[] = [];
+        for (const id of this.graph.nodes()){
+            if (this.graph.node(id).tags.includes(tag)) {
+                notes.push(this.getNote(id));
+            }
+        }
+        return notes;
     }
 
 

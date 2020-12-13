@@ -39,6 +39,11 @@
 					"name": "backlinks",
 					"icon": "static/codekasten_logo.svg", 
 					"contextualTitle": "Codekasten"
+				}, {
+					"id": "tagTree", 
+					"name": "tagTree", 
+					"icon": "static/codekasten_logo.svg", 
+					"contextualTitle": "Codekasten"
 				}
 			]
 		}, 

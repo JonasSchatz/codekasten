@@ -7,10 +7,8 @@ const RADIUS = 4;
 const ACTIVE_RADIUS = 6;
 const STROKE = 1;
 const FONT_SIZE = 14;
-const TICKS = 5000;
+const TICKS = 100;
 const FONT_BASELINE = 15;
-
-
 
 try {
   var vscode = acquireVsCodeApi();
@@ -26,6 +24,19 @@ try {
 
 const onClick = (d) => {
   vscode.postMessage({ type: "click", payload: d });
+};
+
+
+const moveToCurrentlyActiveNote = () => {
+  const svg = d3.select("svg");
+  const activeNode = d3.select("[isCurrentlyActive=true]");
+  if(activeNode) {
+    var newTransform = d3.zoomIdentity
+      .translate((window.innerWidth/2), (window.innerHeight/2))
+      .scale(zoomLevel)
+      .translate( -activeNode.attr("cx"),  -activeNode.attr("cy"));
+    svg.call(zoomHandler.transform, newTransform);
+  }
 };
 
 const sameNodes = (previous, next) => {
@@ -84,6 +95,7 @@ const svg = d3.select("svg");
 const width = Number(svg.attr("width"));
 const height = Number(svg.attr("height"));
 let zoomLevel = 1;
+d3.select("#moveToCurrentlyActive").node().onclick = moveToCurrentlyActiveNote;
 
 const simulation = d3
   .forceSimulation(nodesData)
@@ -104,11 +116,12 @@ let node = g.append("g").attr("class", "nodes").selectAll(".node");
 let text = g.append("g").attr("class", "text").selectAll(".text");
 
 const resize = () => {
+  
   if (d3.event) {
     const scale = d3.event.transform;
     zoomLevel = scale.k;
     g.attr("transform", scale);
-  }
+  } 
 
   const zoomOrKeep = (value) => (zoomLevel >= 1 ? value / zoomLevel : value);
 
@@ -118,11 +131,12 @@ const resize = () => {
   text.attr("y", (d) => d.y - zoomOrKeep(FONT_BASELINE));
   link.attr("stroke-width", zoomOrKeep(STROKE));
   node.attr("r", zoomOrKeep(RADIUS));
+  /** 
   svg
     .selectAll("circle")
     .filter((_d, i, nodes) => d3.select(nodes[i]).attr("active"))
     .attr("r", zoomOrKeep(ACTIVE_RADIUS));
-
+  */
   document.getElementById("zoom").innerHTML = zoomLevel.toFixed(2);
 };
 
@@ -181,10 +195,19 @@ const restart = () => {
   node = node
     .enter()
     .append("circle")
-    .attr("class", (d) => d.isStub ? "stub" : "note")
+    .attr("isStub", (d) => d.isStub ? true : false)
+    .attr("isCurrentlyActive", (d) => d.isCurrentlyActive ? true : false)
     .attr("r", (d) => d.isStub ? 1 : RADIUS)
     .on("click", onClick)
     .merge(node);
+  
+  node
+    .transition()
+    .attr("isCurrentlyActive", (d) => d.isCurrentlyActive ? true : false);
+
+  node
+    .exit()
+    .attr("isCurrentlyActive", (d) => d.isCurrentlyActive ? true : false);
 
   link = link
     .data(linksData, (d) => `${d.source.id}-${d.target.id}`);
@@ -193,7 +216,7 @@ const restart = () => {
     .enter()
     .append("line")
     .attr("stroke-width", STROKE)
-    .attr("class", (d) => d.targetIsStub ? "stub" : "note")
+    .attr("isStub", (d) => d.isStub ? true : false)
     .merge(link);
 
   text = text.data(nodesData, (d) => d.label);
@@ -201,14 +224,18 @@ const restart = () => {
   text = text
     .enter()
     .append("text")
-    .attr("class", (d) => d.isStub ? "stub" : "note")
     .text((d) => d.label.replace(/_*/g, ""))
     .attr("font-size", `${FONT_SIZE}px`)
     .attr("text-anchor", "middle")
     .attr("alignment-baseline", "central")
     .on("click", onClick)
-    .attr("class", (d) => d.isStub ? "stub" : "note")
+    .attr("isStub", (d) => d.isStub ? true : false)
+    .attr("isCurrentlyActive", (d) => d.isCurrentlyActive ? true : false)
     .merge(text);
+
+  text
+    .transition()
+    .attr("isCurrentlyActive", (d) => d.isCurrentlyActive ? true : false);
 
   simulation.nodes(nodesData);
   simulation.force("link").links(linksData);

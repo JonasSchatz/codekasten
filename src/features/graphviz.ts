@@ -1,12 +1,15 @@
-import * as vscode from "vscode";
-import { NoteGraph } from "../core";
-import * as path from 'path';
-import { Feature } from "./feature";
-import { TextDecoder } from "util";
-import { Note } from "../core/Note";
-import * as md5 from "md5";
-import { openNoteInWorkspace } from "../vscode/NoteActions";
 import * as fs from 'fs';
+import * as md5 from "md5";
+import * as path from 'path';
+import { TextDecoder } from "util";
+import * as vscode from "vscode";
+
+import { NoteGraph } from "../core";
+import { Note, WebviewNote } from "../core/Note";
+import { openNoteInWorkspace } from "../vscode/NoteActions";
+
+import { Feature } from "./feature";
+
 
 const feature: Feature = {
     activate: (context: vscode.ExtensionContext, graph: NoteGraph) => {
@@ -19,6 +22,7 @@ const feature: Feature = {
                 const noteAddedListener = graph.onDidAddNote(() => sendGraph(graph, panel, 'Webview update, onDidAddNote'));
                 const noteUpdatedListener = graph.onDidUpdateNote(() => sendGraph(graph, panel, 'Webview update, onDidUpdateNote'));
                 const noteDeleteListener = graph.onDidDeleteNote(() => sendGraph(graph, panel, 'Webview update, onDidDeleteNote'));
+                vscode.window.onDidChangeActiveTextEditor((editor) => sendGraph(graph, panel, `Webview update, onDidChangeActiveTextEditor ${editor.document?.uri.fsPath}`));
 
                 panel.onDidDispose(() => {
                     noteAddedListener.dispose();
@@ -112,8 +116,10 @@ async function generateWebviewHtml(context: vscode.ExtensionContext, panel: vsco
  * Turn the NoteGraph into a list of nodes and edges for D3 to consume
  */
 function generateWebviewData(graph: NoteGraph) {
-    const webviewNodes: { id: string; label: string; path: string, isStub: boolean }[] = [];
+    const webviewNodes: WebviewNote[] = [];
     const webviewEdges: { source: string; target: string; targetIsStub: boolean }[] = [];
+    const currentlyOpenNotePath: string = vscode.window.activeTextEditor?.document?.uri.fsPath;
+    console.log(`This should be identical: ${currentlyOpenNotePath}`)
 
     graph.graph.nodes().forEach(id => {
         const sourceNote: Note = graph.getNote(id);
@@ -122,7 +128,8 @@ function generateWebviewData(graph: NoteGraph) {
             'id': md5(sourceNote.path), 
             'label': sourceNote.title ? sourceNote.title : path.basename(sourceNote.path, path.extname(sourceNote.path)), 
             'path': sourceNote.path, 
-            'isStub': sourceNote.isStub
+            'isStub': sourceNote.isStub, 
+            'isCurrentlyActive': (sourceNote.path === currentlyOpenNotePath) ? true : false
         });
 
         for (const link of sourceNote.links) {
