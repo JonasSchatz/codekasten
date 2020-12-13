@@ -8,7 +8,8 @@ If you don't know what a Zettelkasten is, there are many resources on the web, b
 
 ## Recommended Extensions
 To harness the full power of markdown documents in VS Code, [Markdown Preview Enhanced](https://marketplace.visualstudio.com/items?itemName=shd101wyy.markdown-preview-enhanced) is recommended. 
-For visualizing the relationships between nodes, [Markdown Links](https://marketplace.visualstudio.com/items?itemName=tchayen.markdown-links) is also recommended. It uses D3's Force Graph under the hood, so it is likely to not be a scaleable solution. Codekasten has its own graph visualization view, heavily based on Markdown Links. In future versions I plan to move this implementation to use [force-graph](https://github.com/vasturiano/force-graph) instead. However, this needs to wait until either [this issue](https://github.com/foambubble/foam/issues/378) or [this issue](https://github.com/microsoft/vscode/issues/112396) get solved. 
+For visualizing the relationships between nodes, [Markdown Links](https://marketplace.visualstudio.com/items?itemName=tchayen.markdown-links) is also recommended. It uses D3's Force Graph under the hood, so it is likely to not be a scaleable solution. Codekasten has its own graph visualization view, heavily based on Markdown Links. In future versions I plan to move this implementation to use [force-graph](https://github.com/vasturiano/force-graph) instead. However, this needs to wait until either [this issue](https://github.com/foambubble/foam/issues/378) or [this issue](https://github.com/microsoft/vscode/issues/112396) get solved.
+For easy pasting of images, use [Paste Image](https://marketplace.visualstudio.com/items?itemName=mushan.vscode-paste-image). Note that this is not maintained anymore, but forks do exists. 
 
 ## Features
 Currently supported:
@@ -31,6 +32,8 @@ Short-term:
 Mid-term:
 - Make the extension more customizable, e.g. let the user provide glob-patterns for which files should be included in the graph visualization. 
 - Include a Template with the neccessary folder structure and some smart initial values for the settings into the Repo.
+- Cleanup Scripts: Find Stubs and unlinked images. Maybe find unlinked notes and make it a challenge to connect them to the bulk of knowledge. 
+- Handle images: Right-click to change to HTML image tags with size.
 
 Long-term:
 - Implement or find a more robust Markdown Parser. Do own syntax highlighting (e.g. detected links), which might be cool and also help with debugging.
