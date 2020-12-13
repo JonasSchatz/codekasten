@@ -6,3 +6,11 @@ export class Note {
     tags: Array<string>;
     isStub: boolean;
 }
+
+export class WebviewNote {
+    id: string;
+    label: string;
+    path: string;
+    isStub: boolean;
+    isCurrentlyActive: boolean;
+}
