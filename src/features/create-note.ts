@@ -37,7 +37,7 @@ const feature: Feature = {
 
                     // InputBox: FileName
                     try{
-                        var filename: string = await letUserChooseText('Enter the filename for the new note', '', convertToKebabCase(title));
+                        var filename: string = await letUserChooseText('Enter the filename for the new note', convertToKebabCase(title));
                     } catch(err) {
                         return; 
                     }
@@ -58,7 +58,7 @@ const feature: Feature = {
                     if (selection !== undefined && !selection.isEmpty) {
                         const markdownLink: MarkdownLink = new MarkdownLink(activeEditor.document.uri.fsPath, filePath);
                         markdownLink.description = title;
-                        activeEditor.edit(editBuilder => editBuilder.replace(selection, markdownLink.stringRepresentation));
+                        activeEditor.edit(editBuilder => editBuilder.replace(selection, markdownLink.getStringRepresentation()));
                     }
                     
                     openNoteInWorkspace(filePath, vscode.ViewColumn.Active);

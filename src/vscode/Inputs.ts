@@ -29,10 +29,9 @@ export function letUserSearchNoteByTitle(graph: NoteGraph): Promise<Note> {
     return noteQuickPickPromise;
 }
 
-export async function letUserChooseText(prompt: string, suggestion: string = '', value: string = ''): Promise<string> {
+export async function letUserChooseText(prompt: string, value: string = ''): Promise<string> {
     const inputBox = vscode.window.createInputBox();
     inputBox.prompt = prompt;
-    inputBox.placeholder = suggestion;
     inputBox.value = value;
     inputBox.onDidHide(() => inputBox.dispose());
 

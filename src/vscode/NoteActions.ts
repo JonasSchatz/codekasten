@@ -15,7 +15,7 @@ export function insertMarkdownLinkInCurrentNote(targetPath: string, title: strin
     const sourcePath: string = vscode.window.activeTextEditor.document.uri.fsPath;
     const markdownLink: MarkdownLink = new MarkdownLink(sourcePath, targetPath);
     markdownLink.description = title;
-    const stringRepresentation: string = markdownLink.stringRepresentation;
+    const stringRepresentation: string = markdownLink.getStringRepresentation();
     insertTextInCurrentNote(stringRepresentation);
 }
 
