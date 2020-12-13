@@ -30,6 +30,7 @@ Short-term:
 
 Mid-term:
 - Make the extension more customizable, e.g. let the user provide glob-patterns for which files should be included in the graph visualization. 
+- Include a Template with the neccessary folder structure and some smart initial values for the settings into the Repo.
 
 Long-term:
 - Implement or find a more robust Markdown Parser. Do own syntax highlighting (e.g. detected links), which might be cool and also help with debugging.
