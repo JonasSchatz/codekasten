@@ -19,6 +19,14 @@ export class FilesystemSyncher{
             
             this.graph.updateId(oldId, newId);
 
+            for(const id of this.graph.graph.nodes()){
+                const node = this.graph.getNote(id);
+                if (node.path.includes('python')){
+                    console.log(node.path);
+                }
+                console.log(node.path);
+            }
+
             // Adjust forward links: They have a new source
             const forwardLinkTargets: string[] = this.graph.getForwardLinksAsString(newId);
             for(const forwardLinkTarget of forwardLinkTargets){

@@ -73,6 +73,7 @@ export async function replaceTextInFile(filePath: string, oldText: string, newTe
     const newContent: string = content.replace(oldText, newText);
     if(content !== newContent) {
         await createNote(filePath, newContent, true);
+        console.log(`Replaced text in file ${filePath}: oldText "${oldText}", newText "${newText}`);
     }
     
 }

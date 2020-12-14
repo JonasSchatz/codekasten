@@ -4,7 +4,7 @@ import { NoteGraph } from "../core";
 import { Note } from '../core/Note';
 import { letUserSearchNoteByTitle, letUserChooseNoteAction } from '../vscode/Inputs';
 import * as noteActions from "../vscode/NoteActions";
-
+import { Logger } from "../services";
 
 const feature: Feature = {
     activate: (context: vscode.ExtensionContext, graph: NoteGraph) => {
