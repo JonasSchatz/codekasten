@@ -1,14 +1,14 @@
 import * as vscode from 'vscode';
+
+import { NoteGraph } from "./core";
 import { features } from "./features";
-import { Config, createConfigFromVsCode, NoteGraph } from "./core";
-import { CodekastenParser } from "./vscode";
+import { bootstrap, CodekastenLogger, Logger } from './services';
 import { checkCodekastenSetup } from './vscode/Verification';
-import { bootstrap } from './services/bootstrap';
+
 
 
 export async function activate(context: vscode.ExtensionContext) {
-
-	const config: Config = createConfigFromVsCode();
+	Logger.setDefaultLogger(new CodekastenLogger);
 	const codekastenGraph: NoteGraph = await bootstrap();
 	
 

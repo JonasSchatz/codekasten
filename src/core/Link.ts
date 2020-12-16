@@ -12,12 +12,14 @@ export class MarkdownLink implements Link {
     target: string;
     description: string;
     relativePath: string;
-    stringRepresentation: string;
     
     constructor(source: string, target: string) {
         this.source = source;
         this.target = target;
         this.relativePath = path.relative(path.dirname(this.source), this.target).replace(/\\/g, '/');
-        this.stringRepresentation = `[${this.description}](${this.relativePath})`;
+    };
+
+    getStringRepresentation(): string {
+        return `[${this.description}](${this.relativePath})`;
     }
 }

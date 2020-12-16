@@ -1,7 +1,9 @@
-import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as vscode from 'vscode';
+
 import { MarkdownLink } from '../core/Link';
+import { Logger } from '../services';
 
 export function insertTextInCurrentNote(text: string) {
     const editor = vscode.window.activeTextEditor;
@@ -15,7 +17,7 @@ export function insertMarkdownLinkInCurrentNote(targetPath: string, title: strin
     const sourcePath: string = vscode.window.activeTextEditor.document.uri.fsPath;
     const markdownLink: MarkdownLink = new MarkdownLink(sourcePath, targetPath);
     markdownLink.description = title;
-    const stringRepresentation: string = markdownLink.stringRepresentation;
+    const stringRepresentation: string = markdownLink.getStringRepresentation();
     insertTextInCurrentNote(stringRepresentation);
 }
 
@@ -68,13 +70,20 @@ export async function loadFileAsString(fileIdentifier: string | vscode.Uri): Pro
     return readStr;
 }
 
-export async function replaceTextInFile(filePath: string, oldText: string, newText: string) {
+/**
+ * Read a file, replace some text, and write it back
+ * Returns true if changes have been made
+ */
+export async function replaceTextInFile(filePath: string, oldText: string, newText: string): Promise<boolean> {
     const content: string = await loadFileAsString(filePath);
     const newContent: string = content.replace(oldText, newText);
     if(content !== newContent) {
+        Logger.info(`Replacing text in file ${filePath}. Old text: "${oldText}", new text: "${newText}"`);
         await createNote(filePath, newContent, true);
+        return true;
+    } else {
+        return false;
     }
-    
 }
 
 export function escapeRegex(str: string) {
