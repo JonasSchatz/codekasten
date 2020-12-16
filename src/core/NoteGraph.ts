@@ -1,11 +1,11 @@
 import { Edge, Graph } from 'graphlib';
+import * as md5 from 'md5';
 import { Uri } from 'vscode';
+import { Logger } from '../services';
+
+import { Event, Emitter } from './common/event';
 import { Note } from './Note';
 import { Parser } from './Parser';
-import * as md5 from 'md5';
-import { Event, Emitter } from './common/event';
-import { notStrictEqual } from 'assert';
-
 
 export class GraphNote{
     path: string;
@@ -158,7 +158,9 @@ export class NoteGraph {
         if(!edges){
             return [];
         } else {
-            return edges.map((edge) => this.graph.node(edge.w).path);
+            const forwardLinks: string[] = edges.map((edge) => this.graph.node(edge.w).path);
+            Logger.info(`Found ${forwardLinks.length} forward links for ${this.graph.node(sourceId).path}`);
+            return forwardLinks;
         } 
     }
 
@@ -169,7 +171,6 @@ export class NoteGraph {
 
         this.graph.setNode(newId, oldNode);
         
-
         if(inEdges){
             for(const inEdge of inEdges){
                 this.graph.setEdge(inEdge.v, newId);
