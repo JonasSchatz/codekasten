@@ -2,18 +2,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" data-replace href="${graphStylesPath}">
-    <script src="{{./d3.v4.min.js}}"></script>
+    <script data-replace src="./d3.v6.min.js"></script>
+    <script data-replace src="./force-graph.1.34.1.min.js"></script>
   </head>
   <body>
-    <div class="buttons">
-      <span><span id="files">0</span> files</span>
-      <span><span id="connections">0</span> links</span>
-      <span><span id="zoom">1.00</span>x</span>
-    </div>
-    <div class="controls">
-      <span id="moveToCurrentlyActive">Move to currently active</span>
-    </div>
-    <script data-replace src="${graphPath}"></script>
+    <div id="graph"></div>
+    <!-- <script data-replace src="./test-data.js"></script> -->
+    <script data-replace src="./graph.js"></script>
   </body>
 </html>

@@ -1,256 +1,83 @@
-/**
- * Attribution: Adjusted from 'markdown-links' by tchayen
- * https://github.com/tchayen/markdown-links
- */
+const CONTAINER_ID = "graph";
+const graph = ForceGraph();
 
-const RADIUS = 4;
-const ACTIVE_RADIUS = 6;
-const STROKE = 1;
-const FONT_SIZE = 14;
-const TICKS = 100;
-const FONT_BASELINE = 15;
 
-try {
-  var vscode = acquireVsCodeApi();
-  var nodesData = [];
-  var linksData = [];
-  vscode.postMessage({ type: "ready" });
-} catch(err) {
-  var nodesData = window.data.nodes;
-  var linksData = window.data.edges;
-  console.log(`Local testing. Found ${nodesData.length} nodes and ${linksData} edges`);
+function initDataviz(){
+  const elem = document.getElementById(CONTAINER_ID);
+  graph(elem)
+    .graphData(graphData)
+    .nodeId('id').nodeCanvasObject((node, ctx, globalScale) => {
+      const label = node.label;
+      const fontSize = 14;
+      ctx.font = `${fontSize}px Sans-Serif`;
+      const textWidth = ctx.measureText(label).width;
+      const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize*0.2);
+
+      ctx.fillStyle = 'rgba(0, 255, 255, 0.8)';
+      ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y - bckgDimensions[1] / 2, ...bckgDimensions);
+
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'rgba(123, 57, 5, 1.0)';
+      ctx.fillText(label, node.x, node.y);
+    })
+    .onNodeClick((node, event) => {
+      console.log('onNodeClick');
+      vscode.postMessage({ type: "click", payload: node });
+    });
 }
 
 
-const onClick = (d) => {
-  vscode.postMessage({ type: "click", payload: d });
-};
 
+try {
+  const vscode = acquireVsCodeApi();
 
-const moveToCurrentlyActiveNote = () => {
-  const svg = d3.select("svg");
-  const activeNode = d3.select("[isCurrentlyActive=true]");
-  if(activeNode) {
-    var newTransform = d3.zoomIdentity
-      .translate((window.innerWidth/2), (window.innerHeight/2))
-      .scale(zoomLevel)
-      .translate( -activeNode.attr("cx"),  -activeNode.attr("cy"));
-    svg.call(zoomHandler.transform, newTransform);
-  }
-};
+  window.onload = () => {
+    initDataviz();
+    console.log("ready");
+    vscode.postMessage({
+      type: "webviewDidLoad"
+    });
+  };
 
-const sameNodes = (previous, next) => {
-  if (next.length !== previous.length) {
-    return false;
-  }
-
-  const map = new Map();
-  for (const node of previous) {
-    map.set(node.id, node.label);
-  }
-
-  for (const node of next) {
-    const found = map.get(node.id);
-    if (!found || found !== node.title) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
-const sameEdges = (previous, next) => {
-  if (next.length !== previous.length) {
-    return false;
-  }
-
-  const set = new Set();
-  for (const edge of previous) {
-    set.add(`${edge.source.id}-${edge.target.id}`);
-  }
-
-  for (const edge of next) {
-    if (!set.has(`${edge.source}-${edge.target}`)) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
-const element = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-element.setAttribute("width", window.innerWidth);
-element.setAttribute("height", window.innerHeight);
-document.body.appendChild(element);
-
-const reportWindowSize = () => {
-  element.setAttribute("width", window.innerWidth);
-  element.setAttribute("height", window.innerHeight);
-};
-
-window.onresize = reportWindowSize;
-
-
-const svg = d3.select("svg");
-const width = Number(svg.attr("width"));
-const height = Number(svg.attr("height"));
-let zoomLevel = 1;
-d3.select("#moveToCurrentlyActive").node().onclick = moveToCurrentlyActiveNote;
-
-const simulation = d3
-  .forceSimulation(nodesData)
-  .force("charge", d3.forceManyBody().strength(-300))
-  .force(
-    "link",
-    d3
-      .forceLink(linksData)
-      .id((d) => d.id)
-      .distance(70)
-  )
-  .force("center", d3.forceCenter(width / 2, height / 2))
-  .stop();
-
-const g = svg.append("g");
-let link = g.append("g").attr("class", "links").selectAll(".link");
-let node = g.append("g").attr("class", "nodes").selectAll(".node");
-let text = g.append("g").attr("class", "text").selectAll(".text");
-
-const resize = () => {
+  window.addEventListener("message", (event) => {
+    const message = event.data;
   
-  if (d3.event) {
-    const scale = d3.event.transform;
-    zoomLevel = scale.k;
-    g.attr("transform", scale);
-  } 
+    switch (message.type) {
+      case "refresh":
+        const newGraph = message.payload;
+        graphData = newGraph;
+        initDataviz();
+        break;
+      case "didSelectNote":
+        const noteId = message.payload;
+        console.log(`ToDo: Selected Node {noteId}, currently doint nothing`);
+    }
+  });
 
-  const zoomOrKeep = (value) => (zoomLevel >= 1 ? value / zoomLevel : value);
-
-  const font = Math.max(Math.round(zoomOrKeep(FONT_SIZE)), 1);
-
-  text.attr("font-size", `${font}px`);
-  text.attr("y", (d) => d.y - zoomOrKeep(FONT_BASELINE));
-  link.attr("stroke-width", zoomOrKeep(STROKE));
-  node.attr("r", zoomOrKeep(RADIUS));
-  /** 
-  svg
-    .selectAll("circle")
-    .filter((_d, i, nodes) => d3.select(nodes[i]).attr("active"))
-    .attr("r", zoomOrKeep(ACTIVE_RADIUS));
-  */
-  document.getElementById("zoom").innerHTML = zoomLevel.toFixed(2);
-};
-
-window.addEventListener("message", (event) => {
-  const message = event.data;
-
-  switch (message.type) {
-    case "refresh":
-      const { nodes, edges } = message.payload;
-
-      if (sameNodes(nodesData, nodes) && sameEdges(linksData, edges)) {
-        return;
+  window.addEventListener("error", error => {
+    vscode.postMessage({
+      type: "error",
+      payload: {
+        message: error.message,
+        filename: error.filename,
+        lineno: error.lineno,
+        colno: error.colno,
+        error: error.error
       }
+    });
+  });
+} catch(err) {
+  console.log("VsCode not detected");
+}
 
-      nodesData = nodes;
-      linksData = edges;
-      restart();
-      break;
-    case "fileOpen":
-      let path = message.payload.path;
-      if (path.endsWith(".git")) {
-        path = path.slice(0, -4);
-      }
+if (window.data) {
+  var graphData = window.data;
+  initDataviz();
+  console.log(`Local testing. Found ${graphData.nodes.length} nodes and ${graphData.links.length} edges`);
+}
 
-      const fixSlashes = (input) => {
-        const onLocalWindowsFilesystem =
-          navigator.platform == "Win32" && /^\w:\\/.test(input);
-        return onLocalWindowsFilesystem ? input.replace(/\//g, "\\") : input;
-      };
 
-      node.attr("active", (d) => (fixSlashes(d.path) === path ? true : null));
-      text.attr("active", (d) => (fixSlashes(d.path) === path ? true : null));
-      break;
-  }
 
-  // Resize to update size of active node.
-  resize();
-});
 
-const ticked = () => {
-  document.getElementById("connections").innerHTML = linksData.length;
-  document.getElementById("files").innerHTML = nodesData.length;
-
-  node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
-  text.attr("x", (d) => d.x).attr("y", (d) => d.y - FONT_BASELINE / zoomLevel);
-  link
-    .attr("x1", (d) => d.source.x)
-    .attr("y1", (d) => d.source.y)
-    .attr("x2", (d) => d.target.x)
-    .attr("y2", (d) => d.target.y);
-};
-
-const restart = () => {
-  node = node.data(nodesData, (d) => d.id);
-  node.exit().remove();
-  node = node
-    .enter()
-    .append("circle")
-    .attr("isStub", (d) => d.isStub ? true : false)
-    .attr("isCurrentlyActive", (d) => d.isCurrentlyActive ? true : false)
-    .attr("r", (d) => d.isStub ? 1 : RADIUS)
-    .on("click", onClick)
-    .merge(node);
-  
-  node
-    .transition()
-    .attr("isCurrentlyActive", (d) => d.isCurrentlyActive ? true : false);
-
-  node
-    .exit()
-    .attr("isCurrentlyActive", (d) => d.isCurrentlyActive ? true : false);
-
-  link = link
-    .data(linksData, (d) => `${d.source.id}-${d.target.id}`);
-  link.exit().remove();
-  link = link
-    .enter()
-    .append("line")
-    .attr("stroke-width", STROKE)
-    .attr("isStub", (d) => d.isStub ? true : false)
-    .merge(link);
-
-  text = text.data(nodesData, (d) => d.label);
-  text.exit().remove();
-  text = text
-    .enter()
-    .append("text")
-    .text((d) => d.label.replace(/_*/g, ""))
-    .attr("font-size", `${FONT_SIZE}px`)
-    .attr("text-anchor", "middle")
-    .attr("alignment-baseline", "central")
-    .on("click", onClick)
-    .attr("isStub", (d) => d.isStub ? true : false)
-    .attr("isCurrentlyActive", (d) => d.isCurrentlyActive ? true : false)
-    .merge(text);
-
-  text
-    .transition()
-    .attr("isCurrentlyActive", (d) => d.isCurrentlyActive ? true : false);
-
-  simulation.nodes(nodesData);
-  simulation.force("link").links(linksData);
-  simulation.alpha(1).restart();
-  simulation.stop();
-
-  for (let i = 0; i < TICKS; i++) {
-    simulation.tick();
-  }
-
-  ticked();
-};
-
-const zoomHandler = d3.zoom().scaleExtent([0.2, 3]).on("zoom", resize);
-
-zoomHandler(svg);
-restart();
 
