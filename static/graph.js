@@ -163,8 +163,3 @@ if (window.data) {
   });
   console.log(`Local testing. Found ${graphData.nodes.length} nodes and ${graphData.links.length} edges`);
 }
-
-
-
-
-
