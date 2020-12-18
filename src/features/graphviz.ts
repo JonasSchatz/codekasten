@@ -19,9 +19,9 @@ const feature: Feature = {
             vscode.commands.registerCommand("codekasten.show-graph", async () => {
                 panel = initializeWebviewPanel(context, graph);
 
-                const noteAddedListener = graph.onDidAddNote(() => sendGraph(graph, panel, 'Webview update, onDidAddNote'));
-                const noteUpdatedListener = graph.onDidUpdateNote(() => sendGraph(graph, panel, 'Webview update, onDidUpdateNote'));
-                const noteDeleteListener = graph.onDidDeleteNote(() => sendGraph(graph, panel, 'Webview update, onDidDeleteNote'));
+                const noteAddedListener = graph.onDidAddNote(() => sendGraph(graph, panel, "update"));
+                const noteUpdatedListener = graph.onDidUpdateNote(() => sendGraph(graph, panel, "update"));
+                const noteDeleteListener = graph.onDidDeleteNote(() => sendGraph(graph, panel, "update"));
 
                 panel.onDidDispose(() => {
                     noteAddedListener.dispose();
@@ -44,18 +44,17 @@ const feature: Feature = {
         );
 
         context.subscriptions.push(
-            vscode.commands.registerCommand("codekasten.update-graph", () => {
-                sendGraph(graph, panel, 'Webview update, manual trigger');
+            vscode.commands.registerCommand("codekasten.refresh-graph", () => {
+                sendGraph(graph, panel, "refresh");
             })
         );
     }
 };
 
-function sendGraph(graph: NoteGraph, panel: vscode.WebviewPanel, debugMessage: string) {
-    console.log(debugMessage);
+function sendGraph(graph: NoteGraph, panel: vscode.WebviewPanel, messageType: string) {
     const webviewData = generateWebviewData(graph);
     panel.webview.postMessage({
-        type: "refresh", 
+        type: messageType, 
         payload: webviewData
     });
 };
@@ -121,7 +120,7 @@ function initializeWebviewPanel(context: vscode.ExtensionContext, graph: NoteGra
             }
 
             if (message.type === 'webviewDidLoad') {
-                sendGraph(graph, panel, 'Webview update, initial');
+                sendGraph(graph, panel, "initial");
             }
         }, 
         undefined, 
