@@ -1,8 +1,9 @@
-import * as vscode from 'vscode';
-import { NoteGraph } from '../core';
-import { Note } from '../core/Note';
-import * as path from "path";
+import * as fs from 'fs';
 import * as md5 from 'md5';
+import * as path from "path";
+import * as vscode from 'vscode';
+
+import { NoteGraph, Note } from '../core';
 
 export function letUserSearchNoteByTitle(graph: NoteGraph): Promise<Note> {
     const noteQuickPick = vscode.window.createQuickPick();
@@ -59,4 +60,16 @@ export async function letUserChooseTemplate(): Promise<string> {
     );
     const selectedQuickPickItem: vscode.QuickPickItem = await vscode.window.showQuickPick(templateQuickPickItems);
     return selectedQuickPickItem.description;
+}
+
+export async function letUserChooseFolder(): Promise<string> {
+    const rootFolder: string = vscode.workspace.workspaceFolders[0].uri.fsPath; 
+    const folders: string[] = fs.readdirSync(rootFolder, {withFileTypes: true})
+        .filter(dirent => dirent.isDirectory() && !['.codekasten', '.vscode'].includes(dirent.name) ) // ToDo: Put this in settings
+        .map(dirent => dirent.name);
+    const filterQuickPickItems: vscode.QuickPickItem[] = folders.map(folder => {
+        return {label: folder};
+    });
+    const selectedQuickPickItem: vscode.QuickPickItem = await vscode.window.showQuickPick(filterQuickPickItems);
+    return selectedQuickPickItem.label;
 }

@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
-import { Feature } from "./feature";
-import { NoteGraph } from "../core";
-import { letUserChooseTemplate, letUserChooseText } from "../vscode/Inputs";
+
+import { NoteGraph, MarkdownLink } from "../core";
+import { letUserChooseFolder, letUserChooseTemplate, letUserChooseText } from "../vscode/Inputs";
 import { createNote, openNoteInWorkspace } from "../vscode/NoteActions";
-import { MarkdownLink } from "../core/Link";
-import { Logger } from "../services";
+
+import { Feature } from "./feature";
+
 
 const feature: Feature = {
     activate: (context: vscode.ExtensionContext, graph: NoteGraph) => {
@@ -23,11 +24,20 @@ const feature: Feature = {
                     } catch(err) {
                         return;
                     }
+
+                    // QuickPick: Folder
+                    try {
+                        var folder: string = await letUserChooseFolder();
+                    } catch(err) {
+                        return;
+                    }
                     
                     // InputBox: Title
                     try{
                         if (selection !== undefined && !selection.isEmpty && selection.isSingleLine) {
                             var titleSuggestion: string = selectionText;
+                        } else if (folder === 'dailynotes') {
+                            var titleSuggestion: string = new Date().toISOString().split('T')[0];
                         } else {
                             var titleSuggestion: string = '';
                         }
@@ -52,7 +62,7 @@ const feature: Feature = {
                     const content: string = await createNoteContentFromTemplate(templatePath, {'title': title, 'body': body});
                     
                     const rootDir: string = vscode.workspace.workspaceFolders[0].uri.fsPath; 
-                    var filePath: string = `${rootDir}/notes/${filename}.md`;
+                    var filePath: string = `${rootDir}/${folder}/${filename}.md`;
                     filePath = await createNote(filePath, content, false);
                     
                     // If there was an non-empty selection: Insert a markdown link instead of the selection
@@ -82,8 +92,7 @@ async function createNoteContentFromTemplate(templatePath: string, placeholders:
 
 function convertToKebabCase(str: string): string {
     return str
-        .replace(/\W/g, '')
-        .replace(/([a-z])([A-Z])/g, '$1-$2')
+        .replace(/[^a-zA-Z0-9_-\s]/g, '')
         .replace(/\s+/g, '-')
         .toLowerCase();
 }
