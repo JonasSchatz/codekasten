@@ -12,5 +12,4 @@ export class WebviewNote {
     label: string;
     path: string;
     isStub: boolean;
-    isCurrentlyActive: boolean;
 }

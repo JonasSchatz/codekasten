@@ -61,8 +61,8 @@
 				"title": "Codekasten: Search Note"
 			},
 			{
-				"command": "codekasten.update-graph",
-				"title": "Codekasten: Update Graph"
+				"command": "codekasten.refresh-graph",
+				"title": "Codekasten: Refresh Graph"
 			}
 		]
 	},
