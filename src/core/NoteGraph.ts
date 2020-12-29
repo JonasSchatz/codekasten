@@ -103,10 +103,16 @@ export class NoteGraph {
     /**
      * Return all notes with the specified tag
      */
-    getNotesWithTag(tag: string): Note[] {
+    getNotesWithTag(tag: string, ignoreCase: boolean): Note[] {
         const notes: Note[] = [];
         for (const id of this.graph.nodes()){
-            if (this.graph.node(id).tags.includes(tag)) {
+            var tags: string[] = this.graph.node(id).tags;
+            
+            if (ignoreCase) {
+                tags = tags.map(tag => tag.toLocaleLowerCase());
+                tag = tag.toLowerCase();
+            }
+            if (tags.includes(tag)) {
                 notes.push(this.getNote(id));
             }
         }

@@ -76,7 +76,8 @@ export async function loadFileAsString(fileIdentifier: string | vscode.Uri): Pro
  */
 export async function replaceTextInFile(filePath: string, oldText: string, newText: string): Promise<boolean> {
     const content: string = await loadFileAsString(filePath);
-    const newContent: string = content.replace(oldText, newText);
+    const re = new RegExp(oldText, "g");
+    const newContent: string = content.replace(re, newText);
     if(content !== newContent) {
         Logger.info(`Replacing text in file ${filePath}. Old text: "${oldText}", new text: "${newText}"`);
         await createNote(filePath, newContent, true);

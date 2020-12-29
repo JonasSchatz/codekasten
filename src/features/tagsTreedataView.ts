@@ -58,7 +58,7 @@ class TagTreedataProvider implements vscode.TreeDataProvider<TreeItem> {
             }
             return treeItems;
         } else { // Second level: Notes with the respective tags
-            const notesWithTag: Note[] = this.graph.getNotesWithTag(element.label);
+            const notesWithTag: Note[] = this.graph.getNotesWithTag(element.label, true);
             for (const noteWithTag of notesWithTag) {
                 if (noteWithTag.path !== currentlyOpenNotePath) {
                     const treeItem: TreeItem = {
