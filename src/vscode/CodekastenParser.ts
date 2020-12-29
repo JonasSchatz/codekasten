@@ -18,6 +18,9 @@ export class CodekastenParser implements Parser {
         const {links, backlinks}: {links: MarkdownLink[], backlinks: MarkdownLink[]} = this.parseLinks(readStr, note.path);
         note.links = links.map(link => link.target);
         note.backlinks = backlinks.map(link => link.source);
+
+        const images: MarkdownLink[] = this.parseImages(readStr, note.path);
+        note.images = images.map(link => link.target);
         
         note.title = this.parseTitle(readStr);
         note.tags = this.parseTags(readStr);
@@ -49,7 +52,7 @@ export class CodekastenParser implements Parser {
 
     parseLinks(text: string, sourcePath: string): {links: MarkdownLink[], backlinks: MarkdownLink[]} {
         const markdownLinkRe = /(?<!!)\[(?<text>[^\]\n]*)\]\((?!http|www|#)(?<target>[^\)\n]*)\)/gm;
-        const backlinkAreaRe = /(?<=# Backlinks\s)((?:.|\s)+?)(---|$|#)/g;
+        const backlinkAreaRe = /(?<=# Backlinks\s)((?:.|\s)+?)(---|$|#)/g; //ToDo: Remove
         const backlinkArea = backlinkAreaRe.exec(text);
         if(backlinkArea) {
             var backlinkAreaStartIndex = backlinkArea.index;
@@ -76,5 +79,17 @@ export class CodekastenParser implements Parser {
         }
 
         return {links: links, backlinks: backlinks};
+    }
+
+    parseImages(text: string, sourcePath: string): MarkdownLink[] {
+        const imageRe = /!\[(?<text>[^\]]*)\]\((?<target>[^\)\n]*)\)/gm;
+        const imageMatches = text.matchAll(imageRe);
+        var images: Array<MarkdownLink> = [];
+        for (const imageMatch of imageMatches) {
+            const link: MarkdownLink = new MarkdownLink(sourcePath, path.join(path.dirname(sourcePath), imageMatch.groups.target));
+            link.description = imageMatch.groups.text;
+            images.push(link);
+        }
+        return images;
     }
 }

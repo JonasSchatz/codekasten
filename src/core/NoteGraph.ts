@@ -11,12 +11,14 @@ export class GraphNote{
     path: string;
     title: string;
     tags: string[];
+    images: string[];
     isStub: boolean;
 
     constructor(note: Note) {
         this.path = note.path;
         this.title = note.title;
         this.tags = note.tags;
+        this.images = note.images;
         this.isStub = note.isStub;
     }
 }
@@ -69,6 +71,7 @@ export class NoteGraph {
                     title: '',
                     path: forwardLink, 
                     tags: [],
+                    images: [],
                     isStub: true 
                 };
                 this.graph.setNode(md5(forwardLink), stub);
@@ -90,6 +93,7 @@ export class NoteGraph {
             title: graphNote.title,
             links: this.getForwardLinksAsString(id),
             backlinks: this.getBacklinksAsString(id),
+            images: graphNote.images,
             tags: graphNote.tags,
             isStub: graphNote.isStub
         };
@@ -99,10 +103,16 @@ export class NoteGraph {
     /**
      * Return all notes with the specified tag
      */
-    getNotesWithTag(tag: string): Note[] {
+    getNotesWithTag(tag: string, ignoreCase: boolean): Note[] {
         const notes: Note[] = [];
         for (const id of this.graph.nodes()){
-            if (this.graph.node(id).tags.includes(tag)) {
+            var tags: string[] = this.graph.node(id).tags;
+            
+            if (ignoreCase) {
+                tags = tags.map(tag => tag.toLocaleLowerCase());
+                tag = tag.toLowerCase();
+            }
+            if (tags.includes(tag)) {
                 notes.push(this.getNote(id));
             }
         }
@@ -159,7 +169,6 @@ export class NoteGraph {
             return [];
         } else {
             const forwardLinks: string[] = edges.map((edge) => this.graph.node(edge.w).path);
-            Logger.info(`Found ${forwardLinks.length} forward links for ${this.graph.node(sourceId).path}`);
             return forwardLinks;
         } 
     }

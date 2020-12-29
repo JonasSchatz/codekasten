@@ -94,6 +94,7 @@ function convertToKebabCase(str: string): string {
     return str
         .replace(/[^a-zA-Z0-9_-\s]/g, '')
         .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
         .toLowerCase();
 }
 

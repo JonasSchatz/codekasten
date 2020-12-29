@@ -51,18 +51,24 @@
 			{
 				"command": "codekasten.create-note",
 				"title": "Codekasten: Create Note"
-			},
-			{
+			}, {
 				"command": "codekasten.show-graph",
 				"title": "Codekasten: Show graph"
-			},
-			{
+			}, {
 				"command": "codekasten.search-note",
 				"title": "Codekasten: Search Note"
-			},
-			{
+			}, {
 				"command": "codekasten.refresh-graph",
 				"title": "Codekasten: Refresh Graph"
+			}, {
+				"command": "codekasten.perform-consistency-check", 
+				"title": "Codekasten: Perform Consistency Check"
+			}
+		], 
+		"snippets": [
+			{
+			  "language": "markdown",
+			  "path": "./static/snippets.json"
 			}
 		]
 	},
