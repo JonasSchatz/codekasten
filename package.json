@@ -64,6 +64,12 @@
 				"command": "codekasten.perform-consistency-check", 
 				"title": "Codekasten: Perform Consistency Check"
 			}
+		], 
+		"snippets": [
+			{
+			  "language": "markdown",
+			  "path": "./static/snippets.json"
+			}
 		]
 	},
 	"scripts": {

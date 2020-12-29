@@ -1,0 +1,31 @@
+{
+    "Insert two-column markdown-compatible table": {
+        "prefix": "table",
+        "body": [
+            "<table><tr><td>",
+            "",
+            "$1",
+            "",
+            "</td><td>",
+            "",
+            "$2",
+            "",
+            "</td></tr></table>"
+        ],
+        "description": "Insert two-column markdown-compatible table"
+    }, 
+    "Insert table-row": {
+        "prefix": "row", 
+        "body": [
+            "</td></tr><tr><td>", 
+            "", 
+            "$1", 
+            "", 
+            "</td><td>",
+            "",
+            "$2",
+            ""
+        ], 
+        "description": "Insert row into two-column markdown-compatible table"
+    }
+}
