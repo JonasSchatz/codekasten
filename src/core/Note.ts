@@ -3,6 +3,7 @@ export class Note {
     title: string;
     links: Array<string>;
     backlinks: Array<string>;
+    images: Array<string>;
     tags: Array<string>;
     isStub: boolean;
 }

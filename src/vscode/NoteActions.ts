@@ -86,6 +86,10 @@ export async function replaceTextInFile(filePath: string, oldText: string, newTe
     }
 }
 
+export async function appendTag(filePath: string, tag: string): Promise<boolean> {
+    return replaceTextInFile(filePath, "Tags: ", `Tags: ${tag}`);
+}
+
 export function escapeRegex(str: string) {
     return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
