@@ -1,9 +1,7 @@
-import * as vscode from 'vscode';
-
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 
-abstract class BaseLogger {
+export abstract class BaseLogger {
     constructor(private level: LogLevel = 'info') {}
 
     private static severity = {
@@ -43,25 +41,10 @@ abstract class BaseLogger {
 
 }
 
+
 export class ConsoleLogger extends BaseLogger {
     log(level: LogLevel, msg?: string, ...params: any[]): void {
         console[level](`[${level}] ${msg}`, ...params);
-    }
-  }
-
-
-
-export class CodekastenLogger extends BaseLogger {
-    private channel = vscode.window.createOutputChannel("CodekastenLog");
-
-    log(lvl: LogLevel, msg?: any, ...extra: any[]): void {
-        if (msg) {
-            this.channel.appendLine(`[${lvl} - ${new Date().toLocaleTimeString()}] ${msg}`);
-        }
-    }
-
-    show() {
-        this.channel.show();
     }
 }
 
@@ -86,7 +69,7 @@ export class Logger {
       Logger.defaultLogger.setLevel(level);
     }
   
-    private static defaultLogger: BaseLogger = new CodekastenLogger();
+    private static defaultLogger: BaseLogger = new ConsoleLogger();
   
     static setDefaultLogger(logger: BaseLogger) {
       Logger.defaultLogger = logger;

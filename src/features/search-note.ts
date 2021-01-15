@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
-import { Feature } from "./feature";
-import { NoteGraph } from "../core";
-import { Note } from '../core/Note';
+
+import { Note, NoteGraph } from "../core";
 import { letUserSearchNoteByTitle, letUserChooseNoteAction } from '../vscode/Inputs';
 import * as noteActions from "../vscode/NoteActions";
-import { Logger } from "../services";
+
+import { Feature } from "./feature";
+
 
 const feature: Feature = {
     activate: (context: vscode.ExtensionContext, graph: NoteGraph) => {

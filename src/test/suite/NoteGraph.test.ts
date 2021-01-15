@@ -1,7 +1,8 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
+
 import { NoteGraph } from './../../core/NoteGraph';
-import { CodekastenParser } from "./../../vscode";
+import { CodekastenParser } from "./../../core";
 
 suite('NoteGraph', () => {
 
@@ -13,7 +14,10 @@ suite('NoteGraph', () => {
 	    const parser: CodekastenParser = new CodekastenParser();
 
         // Act
-        const result = await graph.populateGraph(vscode.workspace.findFiles('**/*.md', '.codekasten'), parser);
+        const result = await graph.populateGraph(
+            (await vscode.workspace.findFiles('**/*.md', '.codekasten')).map(uri => uri.fsPath), 
+            parser
+        );
 
         // Assert
         assert.strictEqual(graph.graph.nodes().length, 4);

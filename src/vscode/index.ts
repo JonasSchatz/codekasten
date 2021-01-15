@@ -1,7 +1,7 @@
-import { CodekastenParser } from "./CodekastenParser";
-import { checkCodekastenSetup } from "./Verification";
+import { VscodeConfig } from "./VscodeConfig";
+import { VscodeLogger } from "./VscodeLogger";
 
 export {
-    CodekastenParser, 
-    checkCodekastenSetup
+    VscodeConfig,
+    VscodeLogger
 };

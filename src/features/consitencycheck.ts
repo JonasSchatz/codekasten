@@ -2,8 +2,8 @@ import * as fs from 'fs';
 import * as path from "path";
 import * as vscode from 'vscode';
 
-import { Note, NoteGraph } from "../core";
-import { config, Logger } from "../services";
+import { Note, NoteGraph, Logger } from "../core";
+import { VscodeConfig } from "../vscode";
 import { appendTag } from '../vscode/NoteActions';
 
 import { Feature } from "./feature";
@@ -25,7 +25,7 @@ const feature: Feature = {
 
 async function checkImages(graph: NoteGraph) {
 
-    const availableImagePaths: Set<string> = new Set(fs.readdirSync(config.folders.imagesFolder).map(filename => path.join(config.folders.imagesFolder, filename)));
+    const availableImagePaths: Set<string> = new Set(fs.readdirSync(VscodeConfig.folders.imagesFolder).map(filename => path.join(VscodeConfig.folders.imagesFolder, filename)));
 
     var linkedImagePaths: Set<string> = new Set();
     for(const nodeID of graph.graph.nodes()) {
@@ -34,7 +34,7 @@ async function checkImages(graph: NoteGraph) {
             linkedImagePaths.add(imagePath);
 
             if (!availableImagePaths.has(imagePath)) {
-                const noteTaggingSuccessful: boolean = await appendTag(note.path, `${config.tags.failedConsistencyCheckTag} ${config.tags.missingImageTag} `);
+                const noteTaggingSuccessful: boolean = await appendTag(note.path, `${VscodeConfig.tags.failedConsistencyCheckTag} ${VscodeConfig.tags.missingImageTag} `);
                 if (noteTaggingSuccessful) {
                     Logger.info(`Did not find file ${imagePath} in ${note.path}`);
                 } else {
@@ -51,7 +51,7 @@ async function checkImages(graph: NoteGraph) {
             
             fs.rename(
                 availableImagePath, 
-                path.join(config.folders.recycleFolder, path.basename(availableImagePath)), 
+                path.join(VscodeConfig.folders.recycleFolder, path.basename(availableImagePath)), 
                 error => Logger.error(error));
         }
     }

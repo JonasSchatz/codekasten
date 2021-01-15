@@ -1,9 +1,9 @@
 import * as assert from 'assert';
-import * as vscode from 'vscode';
+import * as path from 'path';
+
 import { MarkdownLink } from '../../core/Link';
 import { loadFileAsString } from '../../vscode/NoteActions';
-import { CodekastenParser } from "./../../vscode";
-import * as path from 'path';
+import { CodekastenParser } from "./../../core";
 
 suite('CodekastenParser', () => {
 

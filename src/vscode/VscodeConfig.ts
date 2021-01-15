@@ -1,10 +1,12 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 
+import { Config } from "../core";
+
 const codekastenFolder: string = '.codekasten';
 const rootFolder: string = vscode.workspace.workspaceFolders[0]?.uri.fsPath; 
 
-export const config = {
+export const VscodeConfig: Config = {
     folders: {
         imagesFolder: path.join(rootFolder, 'images'),
         notesFolder: path.join(rootFolder, 'notes'),

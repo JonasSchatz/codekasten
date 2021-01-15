@@ -1,27 +1,10 @@
 import { Edge, Graph } from 'graphlib';
 import * as md5 from 'md5';
 import { Uri } from 'vscode';
-import { Logger } from '../services';
 
 import { Event, Emitter } from './common/event';
-import { Note } from './Note';
+import { Note, GraphNote } from './Note';
 import { Parser } from './Parser';
-
-export class GraphNote{
-    path: string;
-    title: string;
-    tags: string[];
-    images: string[];
-    isStub: boolean;
-
-    constructor(note: Note) {
-        this.path = note.path;
-        this.title = note.title;
-        this.tags = note.tags;
-        this.images = note.images;
-        this.isStub = note.isStub;
-    }
-}
 
 export class NoteGraph {
 
@@ -126,11 +109,10 @@ export class NoteGraph {
         this.onDidDeleteEmitter.fire(id);
     }
 
-    async populateGraph(urisPromise: Thenable<Array<Uri>>, parser: Parser) {
-        const uris = await urisPromise;
+    async populateGraph(filePaths: string[], parser: Parser) {
         
-        for (const uri of uris) {
-            var note: Note = await parser.parse(uri);
+        for (const filePath of filePaths) {
+            var note: Note = await parser.parse(filePath);
             this.setNote(note);
         }
 
