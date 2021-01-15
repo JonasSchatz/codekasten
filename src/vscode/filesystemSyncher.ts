@@ -2,7 +2,7 @@ import * as md5 from 'md5';
 import * as vscode from 'vscode';
 
 import { Logger, MarkdownLink, NoteGraph } from '../core';
-import { replaceTextInFile } from '../vscode/NoteActions';
+import { replaceTextInFile } from './NoteActions';
 
 
 export class FilesystemSyncher{
