@@ -14,3 +14,19 @@ export class WebviewNote {
     path: string;
     isStub: boolean;
 }
+
+export class GraphNote {
+    path: string;
+    title: string;
+    tags: string[];
+    images: string[];
+    isStub: boolean;
+
+    constructor(note: Note) {
+        this.path = note.path;
+        this.title = note.title;
+        this.tags = note.tags;
+        this.images = note.images;
+        this.isStub = note.isStub;
+    }
+}

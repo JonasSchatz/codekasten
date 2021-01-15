@@ -1,27 +1,10 @@
 import { Edge, Graph } from 'graphlib';
 import * as md5 from 'md5';
 import { Uri } from 'vscode';
-import { Logger } from '../services';
 
 import { Event, Emitter } from './common/event';
-import { Note } from './Note';
+import { Note, GraphNote } from './Note';
 import { Parser } from './Parser';
-
-export class GraphNote{
-    path: string;
-    title: string;
-    tags: string[];
-    images: string[];
-    isStub: boolean;
-
-    constructor(note: Note) {
-        this.path = note.path;
-        this.title = note.title;
-        this.tags = note.tags;
-        this.images = note.images;
-        this.isStub = note.isStub;
-    }
-}
 
 export class NoteGraph {
 
