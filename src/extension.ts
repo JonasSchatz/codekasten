@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
 
-import { NoteGraph } from "./core";
+import { NoteGraph, Logger } from "./core";
 import { features } from "./features";
-import { bootstrap, CodekastenLogger, Logger } from './services';
-
+import { bootstrap} from './services';
+import { VscodeLogger } from "./vscode";
 
 
 export async function activate(context: vscode.ExtensionContext) {
-	Logger.setDefaultLogger(new CodekastenLogger);
+	Logger.setDefaultLogger(new VscodeLogger);
 	const codekastenGraph: NoteGraph = await bootstrap();
 	
 	features.forEach(f => {

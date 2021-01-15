@@ -2,8 +2,8 @@ import * as fs from 'fs';
 import * as path from "path";
 import * as vscode from 'vscode';
 
-import { Note, NoteGraph } from "../core";
-import { config, Logger } from "../services";
+import { Note, NoteGraph, Logger } from "../core";
+import { config } from "../services";
 import { appendTag } from '../vscode/NoteActions';
 
 import { Feature } from "./feature";

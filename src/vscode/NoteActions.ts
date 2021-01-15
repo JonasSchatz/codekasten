@@ -2,8 +2,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-import { MarkdownLink } from '../core/Link';
-import { Logger } from '../services';
+import { Logger, MarkdownLink } from '../core';
+
 
 export function insertTextInCurrentNote(text: string) {
     const editor = vscode.window.activeTextEditor;

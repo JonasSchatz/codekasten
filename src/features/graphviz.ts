@@ -3,9 +3,8 @@ import * as md5 from "md5";
 import * as path from 'path';
 import * as vscode from "vscode";
 
-import { NoteGraph } from "../core";
+import { NoteGraph, Logger } from "../core";
 import { Note, WebviewNote } from "../core/Note";
-import { Logger } from '../services';
 import { openNoteInWorkspace } from "../vscode/NoteActions";
 
 import { Feature } from "./feature";

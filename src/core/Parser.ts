@@ -1,9 +1,8 @@
 import * as path from 'path';
 
-import { MarkdownLink } from "../core/Link";
 import { loadFileAsString } from "../vscode/NoteActions";
 
-import { Note } from "./Note";
+import { MarkdownLink, Note } from "../core";
 
 
 export interface Parser {

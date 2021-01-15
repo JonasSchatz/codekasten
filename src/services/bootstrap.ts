@@ -2,9 +2,8 @@ import * as fs from 'fs';
 import * as md5 from 'md5';
 import * as vscode from 'vscode';
 
-import { NoteGraph } from "../core";
-import { config, Logger } from '../services';
-import { CodekastenParser } from "../core";
+import { CodekastenParser, NoteGraph, Logger } from "../core";
+import { config } from '../services';
 
 import { FilesystemSyncher } from './filesystemSyncher';
 
