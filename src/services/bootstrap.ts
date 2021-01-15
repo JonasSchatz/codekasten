@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 
 import { NoteGraph } from "../core";
 import { config, Logger } from '../services';
-import { CodekastenParser } from "../vscode";
+import { CodekastenParser } from "../core";
 
 import { FilesystemSyncher } from './filesystemSyncher';
 
@@ -27,7 +27,11 @@ function setupFolders() {
 
 async function setupCodekastenGraph(parser:CodekastenParser): Promise<NoteGraph> {
     const codekastenGraph: NoteGraph = new NoteGraph();
-    await codekastenGraph.populateGraph(vscode.workspace.findFiles('**/*.md', '{.codekasten, ./index.md}'), parser);
+    
+    await codekastenGraph.populateGraph(
+        (await vscode.workspace.findFiles('**/*.md', '{.codekasten, ./index.md}')).map(uri => uri.fsPath), 
+        parser
+    );
     Logger.info(`Loaded ${codekastenGraph.graph.nodeCount()} Notes and ${codekastenGraph.graph.edgeCount()} Links`);
     return codekastenGraph;
 }
@@ -38,12 +42,12 @@ function setupFileCallbacks(codekastenGraph: NoteGraph, parser: CodekastenParser
 
     watcher.onDidCreate(async uri => {
         Logger.info(`Created a file: ${uri.fsPath}`);
-        codekastenGraph.setNote(await parser.parse(uri));
+        codekastenGraph.setNote(await parser.parse(uri.fsPath));
     });
 
     watcher.onDidChange(async uri => {
         Logger.info(`Changed a file: ${uri.fsPath}`);
-        codekastenGraph.setNote(await parser.parse(uri));
+        codekastenGraph.setNote(await parser.parse(uri.fsPath));
     });
 
     watcher.onDidDelete(uri => {

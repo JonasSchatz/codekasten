@@ -109,11 +109,10 @@ export class NoteGraph {
         this.onDidDeleteEmitter.fire(id);
     }
 
-    async populateGraph(urisPromise: Thenable<Array<Uri>>, parser: Parser) {
-        const uris = await urisPromise;
+    async populateGraph(filePaths: string[], parser: Parser) {
         
-        for (const uri of uris) {
-            var note: Note = await parser.parse(uri);
+        for (const filePath of filePaths) {
+            var note: Note = await parser.parse(filePath);
             this.setNote(note);
         }
 
