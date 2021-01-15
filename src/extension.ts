@@ -4,9 +4,8 @@ import * as vscode from 'vscode';
 
 import { CodekastenParser, NoteGraph, Logger } from "./core";
 import { features } from "./features";
-import { config} from './services';
-import { VscodeLogger } from "./vscode";
-import { FilesystemSyncher } from './vscode/filesystemSyncher';
+import { VscodeConfig, VscodeLogger } from "./vscode";
+import { FilesystemSyncher } from './vscode/FilesystemSyncher';
 
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -25,7 +24,7 @@ export function deactivate() {}
 
 
 function setupFolders() {
-    for (let [key, value] of Object.entries(config.folders)) {
+    for (let [key, value] of Object.entries(VscodeConfig.folders)) {
         if (!fs.existsSync(value)) {
             fs.mkdir(value, error => Logger.error(`Error creating non-existing folder ${value}: ${error}`));
         }

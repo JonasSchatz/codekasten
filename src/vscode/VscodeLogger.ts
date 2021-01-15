@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { BaseLogger, LogLevel } from "../core/logger";
+import { BaseLogger, LogLevel } from "../core/Logger";
 
 
 export class VscodeLogger extends BaseLogger {
