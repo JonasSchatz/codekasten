@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 
-import { NoteGraph } from './../../core/NoteGraph';
+import { NoteGraph } from '../../core/note-graph';
 import { CodekastenParser } from "./../../core";
 
 suite('NoteGraph', () => {

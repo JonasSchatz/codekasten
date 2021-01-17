@@ -1,8 +1,8 @@
 import * as path from 'path';
 
-import { loadFileAsString } from "../vscode/NoteActions";
+import { loadFileAsString } from "../vscode/note-actions";
 
-import { MarkdownLink, Note } from "../core";
+import { MarkdownLink, Note } from ".";
 
 
 export interface Parser {

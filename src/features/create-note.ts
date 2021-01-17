@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 import { NoteGraph, MarkdownLink } from "../core";
 import { letUserChooseFolder, letUserChooseTemplate, letUserChooseText } from "../vscode/Inputs";
-import { createNote, openNoteInWorkspace } from "../vscode/NoteActions";
+import { createNote, openNoteInWorkspace } from "../vscode/note-actions";
 
 import { Feature } from "./feature";
 

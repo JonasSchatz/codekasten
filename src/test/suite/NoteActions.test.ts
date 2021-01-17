@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { findUniqueFileName } from '../../vscode/NoteActions';
+import { findUniqueFileName } from '../../vscode/note-actions';
 
 suite('NoteActions', () => {
 

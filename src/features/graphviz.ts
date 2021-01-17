@@ -4,8 +4,8 @@ import * as path from 'path';
 import * as vscode from "vscode";
 
 import { NoteGraph, Logger } from "../core";
-import { Note, WebviewNote } from "../core/Note";
-import { openNoteInWorkspace } from "../vscode/NoteActions";
+import { Note, WebviewNote } from "../core/note";
+import { openNoteInWorkspace } from "../vscode/note-actions";
 
 import { Feature } from "./feature";
 
