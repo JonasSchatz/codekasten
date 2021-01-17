@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
 import { CodekastenParser, NoteGraph, Logger } from "./core";
 import { features } from "./features";
 import { VscodeConfig, VscodeLogger } from "./vscode";
-import { FilesystemSyncher } from './vscode/FilesystemSyncher';
+import { FilesystemSyncher } from './vscode/filesystem-syncher';
 
 
 export async function activate(context: vscode.ExtensionContext) {

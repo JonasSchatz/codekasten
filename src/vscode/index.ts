@@ -1,5 +1,5 @@
-import { VscodeConfig } from "./VscodeConfig";
-import { VscodeLogger } from "./VscodeLogger";
+import { VscodeConfig } from "./vscode-config";
+import { VscodeLogger } from "./vscode-logger";
 
 export {
     VscodeConfig,

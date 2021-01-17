@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 import { Note, NoteGraph } from "../core";
 import { letUserSearchNoteByTitle, letUserChooseNoteAction } from '../vscode/Inputs';
-import * as noteActions from "../vscode/NoteActions";
+import * as noteActions from "../vscode/note-actions";
 
 import { Feature } from "./feature";
 

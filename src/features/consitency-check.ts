@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 
 import { Note, NoteGraph, Logger } from "../core";
 import { VscodeConfig } from "../vscode";
-import { appendTag } from '../vscode/NoteActions';
+import { appendTag } from '../vscode/note-actions';
 
 import { Feature } from "./feature";
 

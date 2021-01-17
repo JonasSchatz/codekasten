@@ -3,8 +3,8 @@ import * as md5 from 'md5';
 import { Uri } from 'vscode';
 
 import { Event, Emitter } from './common/event';
-import { Note, GraphNote } from './Note';
-import { Parser } from './Parser';
+import { Note, GraphNote } from './note';
+import { Parser } from './parser';
 
 export class NoteGraph {
 
