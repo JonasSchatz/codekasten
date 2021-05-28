@@ -2,12 +2,34 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <link data-replace href="./collapsible.css" rel="stylesheet">
+    <link data-replace href="nouislider.min.css" rel="stylesheet">
     <script data-replace src="./d3.v6.min.js"></script>
     <script data-replace src="./force-graph.1.34.1.min.js"></script>
+    <script data-replace src="./nouislider.min.js"></script>
   </head>
   <body>
+    
+    <div class="container">
+      <div class="row"></div>
+    </div>
+
+    <div class="content grid-container">
+      <div class="grid-item">Neighbor Distance:</div>
+      <div class="grid-item" id="neighbor-distance-slider"></div>
+      <div class="grid-item"></div>  
+      <div class="grid-item">Clusters of Size:</div>  
+      <div class="grid-item" id="cluster-size-slider"></div>  
+      <div class="grid-item">6</div>
+      <div class="grid-item">Colorize Clusters:</div>
+      <div class="grid-item"><input type="checkbox" id="colorize-clusters-checkbox"></div>
+      <div class="grid-item">9</div>
+    </div> 
+    
+    <script data-replace src="./collapsible.js"></script>
     <div id="graph"></div>
     <!-- <script data-replace src="./test-data.js"></script> -->
+    <script data-replace src="./graph-data.js"></script>
     <script data-replace src="./graph.js"></script>
   </body>
 </html>

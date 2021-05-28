@@ -13,6 +13,7 @@ export class WebviewNote {
     label: string;
     path: string;
     isStub: boolean;
+    tags: string[];
 }
 
 export class GraphNote {

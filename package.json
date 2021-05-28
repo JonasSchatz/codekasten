@@ -23,6 +23,16 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"configuration": {
+			"title": "codekasten",
+			"properties": {
+				"codekasten.graphView.tagsForWeakLinks": {
+					"type": "array", 
+					"description": "Notes with these tags will have weaker links in the graph view", 
+					"default": ["#structure"]
+				}
+			}
+		},
 		"viewsContainers": {
 			"activitybar": [
 				{

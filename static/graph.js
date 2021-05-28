@@ -20,21 +20,43 @@ const style = {
   }
 };
 
-
 const graph = ForceGraph();
-let selectedNode = undefined;
 
 
+var forceLink = d3.forceLink().id(function (d) {
+  return d.id;
+}).distance(function (d) {
+  return 1;
+}).strength(function (d) {
+  if (d.source.tags.includes("#structure")) {
+    return 0.01;
+  }
+  return 1;
+});
 
 
 function initDataviz(channel){
   const elem = document.getElementById(CONTAINER_ID);
   graph(elem)
-    .graphData(graphData)
+    .graphData(graphData.enrichedData)
     .d3Force("x", d3.forceX())
     .d3Force("y", d3.forceY())
+    .d3Force("link", forceLink)
     .nodeId('id').nodeCanvasObject((node, ctx, globalScale) => {
-      const label = node.label;
+
+      if (node.clusterSize) {
+        var clusterSize = node.clusterSize.toString();
+      } else {
+        var clusterSize = "?";
+      }
+
+      if (node.distance) {
+        var distance = node.distance.toString();
+      } else {
+        var distance = "?";
+      }
+      
+      const label = "Size: " + clusterSize + ", Dist: " + distance;
       
       Draw(ctx)
         .circle(node.x, node.y, style.node.size+0.2, style.highlightedForeground)
@@ -68,40 +90,13 @@ const Draw = ctx => ({
 });
 
 function getNodeColor(node) {
-  if (node.id === selectedNode) {
+  if (node.id === graphData.selectedNodeId) {
     return style.node.selectedNote;
   } else if (node.isStub) {
     return style.node.nonExistingNote;
   } else {
     return style.node.note;
   }
-}
-
-function updateGraphData(newGraphData) {
-  const oldNodeIds = new Set(graphData.nodes.map(node => node.id));
-  const newNodeIds = new Set(newGraphData.nodes.map(node => node.id));
-
-  let nodesToDelete = new Set([...oldNodeIds].filter(x => !newNodeIds.has(x)));
-  let nodesToAdd = new Set([...newNodeIds].filter(x => !oldNodeIds.has(x)));
-  let nodesToUpdate = new Set([...oldNodeIds].filter(x => newNodeIds.has(x))); 
-  
-  for (const id of nodesToDelete) {
-    const index = graphData.nodes.map(node => node.id).indexOf(id);
-    graphData.nodes.splice(index, 1);
-    console.log(`Deleted node ${id} from position ${index}`);
-  }
-
-  for (const id of nodesToAdd) {
-    console.log(`Add node ${id}`);
-    const index = newGraphData.nodes.map(node => node.id).indexOf(id);
-    graphData.nodes.push(newGraphData.nodes[index]);
-  }
-
-  for (const id of nodesToUpdate) {
-    console.log(`Update node ${id}`);
-  }
-  graphData.links = newGraphData.links;
-  graph.graphData(graphData);
 }
 
 try {
@@ -117,21 +112,27 @@ try {
 
   window.addEventListener("message", (event) => {
     const message = event.data;
-  
+    console.log(message.type);
     switch (message.type) {
+      
       case "initial":
-        graphData = message.payload;
+        graphData.originalData = message.payload;
         initDataviz(vscode);
         break;
       case "update":
-        updateGraphData(message.payload);
+        graphData.originalData = message.payload;
+        graphData.enrichedData;
         break;
       case "refresh":    
-        graphData = message.payload;
+        initDataviz(vscode);
         break;
       case "didSelectNote":
-        selectedNode = message.payload;
-        graph.graphData(graphData);
+        graphData.selectedNodeId = message.payload;
+        graph.graphData(graphData.enrichedData);
+        break;
+      case "updateSettings":
+        vscodeSettings = message.payload;
+        console.log(vscodeSettings);
         break;
     }
   });
@@ -151,6 +152,20 @@ try {
 } catch(err) {
   console.log("VsCode not detected");
 }
+
+neighborDistanceSlider.noUiSlider.on('change', function (values, handle) {
+  console.log("Change in neighbor distance slider:");
+  console.log(values[handle]);
+});
+
+clusterSizeSlider.noUiSlider.on('change', function (values, handle) {
+  console.log("Change in cluster size slider:");
+  console.log(values);
+});
+
+colorizeClustersCheckbox.addEventListener('change', (event) => {
+  console.log(event.currentTarget.checked);
+});
 
 window.addEventListener("resize", () => {
   graph.width(window.innerWidth).height(window.innerHeight);
