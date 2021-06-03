@@ -136,7 +136,7 @@ try {
     switch (message.type) {
       
       case "initial":
-        graphData.setOriginalData(message.payload)
+        graphData.setOriginalData(message.payload);
         initDataviz(vscode);
         break;
       case "update":
@@ -181,7 +181,7 @@ neighborDistanceSlider.noUiSlider.on('change', function (values, handle) {
   if (newValue >= 24) {
     var distance = undefined;
   } else {
-    var distance = newValue
+    var distance = newValue;
   }
 
   graphData.setNeighborDistance(distance);

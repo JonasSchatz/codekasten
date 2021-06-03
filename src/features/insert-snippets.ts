@@ -32,6 +32,14 @@ const snippets = [
                 content: '✔️'
             }
         ]
+    }, {
+        label: 'Progress Bar', 
+        content: [
+            {
+                label: '50% Progress', 
+                content: '![](https://progress-bar.dev/50)'
+            }
+        ]
     }
 ];
 
