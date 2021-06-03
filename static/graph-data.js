@@ -1,27 +1,113 @@
 var graphData = {
-    originalData: undefined,
-    get enrichedData() {
-        console.log("Enriching data:");
-        if(!this.originalData) {
-            return undefined;
+    data: undefined,
+    prunedData: undefined,
+    minClusterSize: undefined,
+    maxClusterSize: undefined,
+    neighborDistance: undefined, 
+    selectedNodeId: undefined,
+
+    setOriginalData: function(newData) {     
+        this.data = newData;
+        this.fixLinkReferences();
+        this.updateClusterInformation();
+        this.updateDistance();
+        this.pruneData();
+    }, 
+
+    fixLinkReferences: function() {
+        if (!this.data.links[0].source.id) {
+            this.data.links.map(link => {
+                sourceId = link.source;
+                link.source = getNodeById(this.data, sourceId);
+                targetId = link.target;
+                link.target = getNodeById(this.data, targetId);
+            })
+        };
+    },
+
+    setSelectedNodeId: function(selectedNodeId) {
+        this.selectedNodeId = selectedNodeId;
+        this.updateDistance();
+        this.pruneData();
+    },
+
+    setNeighborDistance: function(newDistance) {
+        this.data = resetNodeProperties(this.data, ['isFringe']);
+        this.neighborDistance = newDistance;
+        this.pruneData();
+    },
+
+    updateDistance: function() {
+        if (this.selectedNodeId) {
+            this.data = bfsDistance(this.data, this.selectedNodeId);
+        } else {
+            this.data.nodes = this.data.nodes.map(node => {
+                node.distance = 0;
+                return node;
+            })
+        }
+    }, 
+
+    setClusterSizes: function(minClusterSize, maxClusterSize) {
+        this.minClusterSize = minClusterSize;
+        this.maxClusterSize = maxClusterSize;
+        this.pruneData();
+    },
+
+    updateClusterInformation: function() {
+        this.data = bfsCluster(this.data);
+    },
+
+    pruneData: function() {        
+        let prunedNodes = this.data.nodes;
+
+        if (this.minClusterSize) {
+            prunedNodes = prunedNodes.filter(
+                node => (
+                    node.clusterSize >= this.minClusterSize
+                )
+            )
+        }
+
+        if (this.maxClusterSize) {
+            prunedNodes = prunedNodes.filter(
+                node => (
+                    node.clusterSize <= this.maxClusterSize
+                )
+            )
+        }
+
+        if (this.neighborDistance) {
+            prunedNodes = prunedNodes.filter(
+                node => (
+                    node.distance <= this.neighborDistance
+                )
+            ).map(
+                node => {
+                    node.isFringe = (node.distance === this.neighborDistance);
+                    return node;
+                }
+            )
         };
         
-        enrichedData = bfsCluster(this.originalData);
-        if (this.selectedNodeId) {
-            enrichedData = bfsDistance(enrichedData, this.selectedNodeId);
-        }
-        return enrichedData;
+        let prunedNodeIds = prunedNodes.map(node => {
+            return node.id;
+        });
+        let prunedLinks = this.data.links.filter(
+            link => (
+                prunedNodeIds.includes(link.target.id) && prunedNodeIds.includes(link.source.id)
+            )
+        );
 
-    } ,
-    prunedData: undefined,
-    minClusterSize: 0,
-    maxClusterSize: 100,
-    neighborDistance: 4, 
-    selectedNodeId: undefined
+        this.prunedData = {'nodes': prunedNodes, 'links': prunedLinks};
+    },    
 };
 
-function enrichData() {
-    
+
+function replaceIDsWithReferences(graphData) {
+    if (graphData.links[0].source.id) {
+        return 
+    }
 }
 
 function updateGraphData(graphData, newGraphData) {
@@ -86,9 +172,6 @@ function resetNodeProperties(graphData, properties) {
     }
     return graphData;
 }
-
-
-
 
 
 function bfsCluster(graphData) {
@@ -157,24 +240,17 @@ function bfsDistance(graphData, rootId) {
         var levelSize = queue.length;
 
         while (levelSize--) {
-        var node = queue.shift();
-        var children = getChildren(graphData, node);
-        console.log(distance);
-        for (const child of children) {
-            if (!child.seen) {
-            child.distance = distance;
-            child.seen = true;
-            queue.push(child);
+            var node = queue.shift();
+            var children = getChildren(graphData, node);
+            for (const child of children) {
+                if (!child.seen) {
+                    child.distance = distance;
+                    child.seen = true;
+                    queue.push(child);
+                }
             }
         }
-        }
-
         distance++;
-        
-
     }
-
-    console.log("Done");
     return graphData;
 }
-

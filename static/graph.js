@@ -16,9 +16,18 @@ const style = {
     nonExistingNote: getStyle("--vscode-list-deemphasizedForeground", "#545454"),
     unknown: getStyle("--vscode-editor-foreground", "#f94144"), 
     selectedNote: getStyle("--vscode-statusBarItem-remoteBackground", "#16825D"), 
-    size: 1
+    size: 1,
+    fringeSize: 0.3
   }
 };
+
+for (const div of document.getElementsByClassName("grid-item")) {
+  div.style.backgroundColor = style.background;
+}
+
+for (const div of document.getElementsByClassName("grid-container")) {
+  div.style.backgroundColor = style.background;
+}
 
 const graph = ForceGraph();
 
@@ -29,7 +38,7 @@ var forceLink = d3.forceLink().id(function (d) {
   return 1;
 }).strength(function (d) {
   if (d.source.tags.includes("#structure")) {
-    return 0.01;
+    return 0.1;
   }
   return 1;
 });
@@ -38,32 +47,17 @@ var forceLink = d3.forceLink().id(function (d) {
 function initDataviz(channel){
   const elem = document.getElementById(CONTAINER_ID);
   graph(elem)
-    .graphData(graphData.enrichedData)
+    .graphData(graphData.prunedData)
     .d3Force("x", d3.forceX())
     .d3Force("y", d3.forceY())
     .d3Force("link", forceLink)
     .nodeId('id').nodeCanvasObject((node, ctx, globalScale) => {
-
-      if (node.clusterSize) {
-        var clusterSize = node.clusterSize.toString();
-      } else {
-        var clusterSize = "?";
-      }
-
-      if (node.distance) {
-        var distance = node.distance.toString();
-      } else {
-        var distance = "?";
-      }
-      
-      const label = "Size: " + clusterSize + ", Dist: " + distance;
-      
       Draw(ctx)
-        .circle(node.x, node.y, style.node.size+0.2, style.highlightedForeground)
-        .circle(node.x, node.y, style.node.size, getNodeColor(node))
-        .text(label, node.x, node.y + style.node.size + 1, style.fontSize/globalScale, getNodeColor(node));
+        .circle(node.x, node.y, getNodeSize(node)+0.2, style.highlightedForeground)
+        .circle(node.x, node.y, getNodeSize(node), getNodeColor(node))
+        .text(getNodeLabel(node), node.x, node.y + style.node.size + 1, style.fontSize/globalScale, getNodeColor(node));
     })
-    .linkColor(d3.hsl(style.node.note).darker(2))
+    .linkColor(link => getLinkColor(link))
     .onNodeClick((node, event) => {
       console.log('onNodeClick');
       channel.postMessage({ type: "click", payload: node });
@@ -99,11 +93,37 @@ function getNodeColor(node) {
   }
 }
 
+function getLinkColor(link) {
+  var color = d3.hsl(style.node.note).darker(2);
+  if (link.source.tags.includes('#structure') || link.target.tags.includes('#structure')) {
+    color.opacity = 0.1;
+    return color;
+  } else {
+    return color;
+  }
+}
+
+
+function getNodeSize(node) {
+  if (node.isFringe) {
+    return style.node.fringeSize;
+  } else {
+    return style.node.size;
+  }
+}
+
+function getNodeLabel(node) {
+  if (node.isFringe) {
+    return '';
+  } else {
+    return node.label;
+  }
+}
+
 try {
   const vscode = acquireVsCodeApi();
 
   window.onload = () => {
-    initDataviz(vscode);
     console.log("ready");
     vscode.postMessage({
       type: "webviewDidLoad"
@@ -116,19 +136,19 @@ try {
     switch (message.type) {
       
       case "initial":
-        graphData.originalData = message.payload;
+        graphData.setOriginalData(message.payload)
         initDataviz(vscode);
         break;
       case "update":
-        graphData.originalData = message.payload;
-        graphData.enrichedData;
+        graphData.setOriginalData(message.payload);
         break;
       case "refresh":    
+        graphData.setOriginalData(message.payload);
         initDataviz(vscode);
         break;
       case "didSelectNote":
-        graphData.selectedNodeId = message.payload;
-        graph.graphData(graphData.enrichedData);
+        graphData.setSelectedNodeId(message.payload);
+        graph.graphData(graphData.prunedData);
         break;
       case "updateSettings":
         vscodeSettings = message.payload;
@@ -154,13 +174,40 @@ try {
 }
 
 neighborDistanceSlider.noUiSlider.on('change', function (values, handle) {
-  console.log("Change in neighbor distance slider:");
-  console.log(values[handle]);
+  let newValue = parseInt(values[handle]);
+
+  console.log("Change in neighbor distance slider: " + newValue);
+
+  if (newValue >= 24) {
+    var distance = undefined;
+  } else {
+    var distance = newValue
+  }
+
+  graphData.setNeighborDistance(distance);
+  graph.graphData(graphData.prunedData);
 });
 
 clusterSizeSlider.noUiSlider.on('change', function (values, handle) {
   console.log("Change in cluster size slider:");
-  console.log(values);
+  let lowerValue = parseInt(values[0]);
+  let upperValue = parseInt(values[1]);
+
+  if (lowerValue === 0) {
+    var minClusterSize = undefined;
+  } else {
+    var minClusterSize = lowerValue;
+  }
+
+  if (upperValue === 100) {
+    var maxClusterSize = undefined;
+  } else {
+    var maxClusterSize = upperValue;
+  }
+
+  graphData.setClusterSizes(minClusterSize, maxClusterSize);
+  graph.graphData(graphData.prunedData);
+
 });
 
 colorizeClustersCheckbox.addEventListener('change', (event) => {
